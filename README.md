@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 一日 (Ichinichi) — Japanese N5 Study App
 
-## Getting Started
+A structured **20-minute Japanese study planner** for JLPT N5. Open the app, see today’s lesson, tap Start, and learn — no decision fatigue.
 
-First, run the development server:
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Core loop
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Home recommends today’s lesson from the curriculum engine  
+2. Start a ~20-minute multi-phase lesson (Review → Learn → Practice → Recall → Quiz)  
+3. Exercises update mastery + spaced-repetition schedules  
+4. Completion screen → continue curriculum, review, or practice weak areas  
 
-## Learn More
+Progress: guests use `localStorage`. Logged-in users sync the same `UserState` to InsForge (`user_progress` table). Optional account via `/auth`.
 
-To learn more about Next.js, take a look at the following resources:
+Copy `.env.example` to `.env.local` and fill InsForge URL + anon key.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Architecture
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Layer | Role | Location |
+|-------|------|----------|
+| **Curriculum** | What should eventually be learned | `src/curriculum/` |
+| **Learning engine** | What this user should do next | `src/engine/` |
+| **Lesson generator** | How to teach it in 20 minutes | `src/lessons/` |
+| **AI seam** | Optional enrichments (Phase 3) | `src/ai/lessonService.ts` |
 
-## Deploy on Vercel
+AI must not invent the curriculum — only explanations/variations inside fixed concepts.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Screens
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `/` — Today’s lesson + progress snapshot  
+- `/lesson` — Distraction-free lesson player + completion  
+- `/curriculum` — N5 roadmap with prerequisites  
+- `/progress` — Mastery metrics, weak/strong areas, daily goal  
+
+## Seed content
+
+Hiragana & katakana, core N5 vocabulary, grammar points (です → past tense → adjectives), beginner kanji, and a full prerequisite-linked concept path from foundations through integration.

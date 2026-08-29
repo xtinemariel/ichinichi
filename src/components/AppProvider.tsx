@@ -50,6 +50,7 @@ import {
   setConceptStatus,
 } from "@/engine/conceptStatus";
 import {
+  generateLesson,
   generateKnowledgeCheck,
   generateQuickReview,
 } from "@/lessons/generator";
@@ -78,6 +79,17 @@ interface KnowledgeCheckSession {
 
 const CHECK_KEY = "ichinichi-active-kcheck-v1";
 const AUTH_PROMPT_KEY = "ichinichi-auth-prompt-dismissed-v1";
+
+function usesUnifiedQuiz(lesson: GeneratedLesson): boolean {
+  const quizPhases = lesson.phases.filter((phase) => phase.kind === "quiz");
+  return (
+    quizPhases.length === 1 &&
+    quizPhases[0].title === "Quiz" &&
+    lesson.phases.every((phase) =>
+      ["review", "learn", "examples", "quiz"].includes(phase.kind)
+    )
+  );
+}
 
 interface AppContextValue {
   ready: boolean;
@@ -205,7 +217,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const saved = loadActiveLesson();
       if (saved) {
         try {
-          setActiveLesson(JSON.parse(saved) as GeneratedLesson);
+          const parsed = JSON.parse(saved) as GeneratedLesson;
+          const lesson = usesUnifiedQuiz(parsed)
+            ? parsed
+            : parsed.lessonType === "REVIEW"
+              ? generateQuickReview(parsed.conceptId, loaded)
+              : generateLesson(parsed.conceptId, loaded, {
+                  isWelcomeBack: parsed.isWelcomeBack,
+                });
+          setActiveLesson(lesson);
+          if (lesson !== parsed) saveActiveLesson(JSON.stringify(lesson));
         } catch {
           clearActiveLesson();
         }

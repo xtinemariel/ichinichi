@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { Exercise } from "@/lib/types";
 import { checkAnswer } from "@/lessons/generator";
 import { FuriganaText } from "@/components/FuriganaText";
@@ -10,45 +10,35 @@ interface Props {
   exercise: Exercise;
   mode: "practice" | "assessment";
   onResult: (correct: boolean, userAnswer: string) => void;
-  /** Practice: after wrong answer, parent may inject a retry */
-  onNeedRetry?: () => void;
+  allowRetry?: boolean;
 }
 
 export function ExerciseRenderer({
   exercise,
   mode,
   onResult,
+  allowRetry = false,
 }: Props) {
   const [selected, setSelected] = useState<string | null>(null);
   const [ordered, setOrdered] = useState<string[]>([]);
   const [remaining, setRemaining] = useState<string[]>(exercise.tokens ?? []);
   const [revealed, setRevealed] = useState(false);
   const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
+  const [submittedAnswer, setSubmittedAnswer] = useState<string | null>(null);
   const [matches, setMatches] = useState<Record<string, string>>({});
   const [activeLeft, setActiveLeft] = useState<string | null>(null);
 
   const rightOptions = useMemo(() => {
     if (!exercise.matchingPairs) return [];
     return shuffle(exercise.matchingPairs.map((p) => p.right));
-  }, [exercise.id, exercise.matchingPairs]);
-
-  useEffect(() => {
-    setSelected(null);
-    setOrdered([]);
-    setRemaining(exercise.tokens ?? []);
-    setRevealed(false);
-    setWasCorrect(null);
-    setMatches({});
-    setActiveLeft(null);
-  }, [exercise.id, exercise.tokens]);
+  }, [exercise.matchingPairs]);
 
   const submit = (answer: string) => {
     if (revealed) return;
     const correct = checkAnswer(exercise, answer);
     setWasCorrect(correct);
+    setSubmittedAnswer(answer);
     setRevealed(true);
-    const delay = mode === "assessment" ? (correct ? 700 : 1100) : correct ? 800 : 1600;
-    setTimeout(() => onResult(correct, answer), delay);
   };
 
   const isChoice =
@@ -68,7 +58,7 @@ export function ExerciseRenderer({
   return (
     <div className="animate-fade-up space-y-6">
       {exercise.passage && (
-        <div className="rounded-sm border border-[var(--line)] bg-[var(--wash)] px-4 py-5">
+        <div className="rounded-md border border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-5">
           <p className="font-jp text-lg leading-relaxed text-[var(--ink)]">
             <FuriganaText
               text={exercise.passage}
@@ -124,14 +114,15 @@ export function ExerciseRenderer({
           {exercise.options.map((opt) => {
             const isSel = selected === opt.label;
             let styles =
-              "border-[var(--line)] bg-[var(--paper)] hover:border-[var(--accent-soft)]";
+              "border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent-soft)] hover:bg-[var(--surface-raised)]";
             if (revealed && opt.label === exercise.correctAnswer) {
               styles =
-                "border-[var(--accent)] bg-[var(--accent-wash)] text-[var(--ink)]";
+                "border-[var(--success)] bg-[var(--success-soft)] text-[var(--text-primary)]";
             } else if (revealed && isSel && !wasCorrect) {
-              styles = "border-[var(--danger)] bg-[var(--danger-wash)]";
+              styles = "border-[var(--error)] bg-[var(--error-soft)]";
             } else if (isSel) {
-              styles = "border-[var(--accent)] bg-[var(--wash)]";
+              styles =
+                "border-[var(--primary)] bg-[var(--primary-soft)] text-[var(--text-primary)]";
             }
             return (
               <button
@@ -142,7 +133,7 @@ export function ExerciseRenderer({
                   setSelected(opt.label);
                   submit(opt.label);
                 }}
-                className={`w-full rounded-sm border px-4 py-3.5 text-left transition-all ${styles} ${
+                className={`w-full rounded-md border px-4 py-3.5 text-left transition-all ${styles} ${
                   largeJpOptions ? "font-jp text-xl text-center" : "text-[15px]"
                 }`}
               >
@@ -155,7 +146,7 @@ export function ExerciseRenderer({
 
       {exercise.type === "word_ordering" && (
         <div className="space-y-4">
-          <div className="flex min-h-[3.5rem] flex-wrap gap-2 rounded-sm border border-dashed border-[var(--line)] bg-[var(--wash)] p-3">
+          <div className="flex min-h-[3.5rem] flex-wrap gap-2 rounded-md border border-dashed border-[var(--border-strong)] bg-[var(--surface-subtle)] p-3">
             {ordered.length === 0 && (
               <span className="text-sm text-[var(--muted)]">
                 Tap tiles below to build the sentence
@@ -170,7 +161,7 @@ export function ExerciseRenderer({
                   setOrdered((o) => o.filter((_, idx) => idx !== i));
                   setRemaining((r) => [...r, tok]);
                 }}
-                className="rounded-sm border border-[var(--accent-soft)] bg-[var(--paper)] px-3 py-2 font-jp text-base"
+                className="rounded-md border border-[var(--accent-soft)] bg-[var(--primary-soft)] px-3 py-2 font-jp text-base"
               >
                 {tok}
               </button>
@@ -186,7 +177,7 @@ export function ExerciseRenderer({
                   setRemaining((r) => r.filter((_, idx) => idx !== i));
                   setOrdered((o) => [...o, tok]);
                 }}
-                className="rounded-sm border border-[var(--line)] bg-[var(--paper)] px-3 py-2 font-jp text-base hover:border-[var(--accent)]"
+                className="rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 font-jp text-base hover:border-[var(--primary)] hover:bg-[var(--surface-raised)]"
               >
                 {tok}
               </button>
@@ -213,12 +204,12 @@ export function ExerciseRenderer({
                   type="button"
                   disabled={revealed || Boolean(matches[p.left])}
                   onClick={() => setActiveLeft(p.left)}
-                  className={`w-full rounded-sm border px-3 py-2.5 font-jp text-left text-base ${
+                  className={`w-full rounded-md border px-3 py-2.5 font-jp text-left text-base ${
                     activeLeft === p.left
-                      ? "border-[var(--accent)] bg-[var(--accent-wash)]"
+                      ? "border-[var(--primary)] bg-[var(--primary-soft)]"
                       : matches[p.left]
-                        ? "border-[var(--accent-soft)] bg-[var(--wash)] opacity-70"
-                        : "border-[var(--line)]"
+                        ? "border-[var(--accent-soft)] bg-[var(--surface-subtle)] opacity-70"
+                        : "border-[var(--border)] bg-[var(--surface)]"
                   }`}
                 >
                   {p.left}
@@ -243,10 +234,10 @@ export function ExerciseRenderer({
                       setMatches((m) => ({ ...m, [activeLeft]: right }));
                       setActiveLeft(null);
                     }}
-                    className={`w-full rounded-sm border px-3 py-2.5 text-left text-sm ${
+                    className={`w-full rounded-md border px-3 py-2.5 text-left text-sm ${
                       used
-                        ? "border-[var(--line)] opacity-40"
-                        : "border-[var(--line)] hover:border-[var(--accent)]"
+                        ? "border-[var(--border)] opacity-40"
+                        : "border-[var(--border)] bg-[var(--surface)] hover:border-[var(--primary)]"
                     }`}
                   >
                     {right}
@@ -277,14 +268,14 @@ export function ExerciseRenderer({
 
       {revealed && (
         <div
-          className={`animate-fade-up rounded-sm border px-4 py-3 text-sm ${
+          className={`animate-fade-up rounded-md border px-4 py-3 text-sm ${
             wasCorrect
-              ? "border-[var(--accent-soft)] bg-[var(--accent-wash)]"
-              : "border-[var(--danger)]/30 bg-[var(--danger-wash)]"
+              ? "border-[var(--success)]/40 bg-[var(--success-soft)]"
+              : "border-[var(--error)]/40 bg-[var(--error-soft)]"
           }`}
         >
           <p className="font-medium">
-            {wasCorrect ? "Correct" : "Not quite"}
+            {wasCorrect ? "✓ Correct" : "✕ Not quite"}
           </p>
           {!wasCorrect && (
             <p className="mt-1 text-[var(--ink-soft)]">
@@ -297,11 +288,21 @@ export function ExerciseRenderer({
               {exercise.explanation}
             </p>
           )}
-          {mode === "practice" && !wasCorrect && (
+          {mode === "practice" && allowRetry && !wasCorrect && (
             <p className="mt-2 text-xs text-[var(--muted)]">
               We&apos;ll give you another similar one after this.
             </p>
           )}
+          <button
+            type="button"
+            onClick={() => {
+              if (wasCorrect === null || submittedAnswer === null) return;
+              onResult(wasCorrect, submittedAnswer);
+            }}
+            className="btn-primary mt-3 w-full"
+          >
+            Continue
+          </button>
         </div>
       )}
     </div>

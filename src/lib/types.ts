@@ -24,12 +24,9 @@ export type LessonType =
   | "MIXED_REVIEW";
 
 export type PhaseKind =
-  | "intro"
   | "review"
   | "learn"
   | "examples"
-  | "practice"
-  | "recall"
   | "quiz";
 
 export type ExerciseType =
@@ -99,6 +96,68 @@ export interface VocabularyItem {
   relatedConceptIds: string[];
 }
 
+export interface GrammarExample {
+  japanese: string;
+  reading?: string;
+  english: string;
+  highlight?: string;
+  breakdown?: Array<{ jp: string; en: string }>;
+  note?: string;
+}
+
+export interface GrammarDiscovery {
+  before: GrammarExample;
+  after: GrammarExample;
+  question: string;
+  change: string;
+  insight: string;
+}
+
+export interface GrammarFormation {
+  from: string;
+  to: string;
+  note?: string;
+}
+
+export interface GrammarContrast {
+  title: string;
+  exampleA: GrammarExample & { label?: string };
+  exampleB: GrammarExample & { label?: string };
+  explanation: string;
+  contrastGrammarId?: string;
+}
+
+export interface GrammarDialogueLine {
+  speaker: string;
+  japanese: string;
+  reading?: string;
+  english: string;
+}
+
+export interface GrammarMistake {
+  wrong: string;
+  /** Omitted when the source only describes a caution and no concrete fix */
+  right?: string;
+  note: string;
+}
+
+/** Rich teaching metadata — depth through structure, not length */
+export interface GrammarPedagogy {
+  discovery?: GrammarDiscovery;
+  meaningConcept?: string;
+  whenToUse?: string;
+  whenNotToUse?: string;
+  nuance?: string;
+  formation?: GrammarFormation[];
+  contrasts?: GrammarContrast[];
+  dialogue?: { title?: string; lines: GrammarDialogueLine[] };
+  richExamples?: GrammarExample[];
+  mistakes?: GrammarMistake[];
+  /** Grammar IDs to warm up before this lesson */
+  reviewGrammarIds?: string[];
+  recall?: { template: string; answer: string; hint?: string };
+}
+
 export interface GrammarPoint {
   id: string;
   title: string;
@@ -112,6 +171,7 @@ export interface GrammarPoint {
   notes?: string[];
   commonMistakes: string[];
   prerequisiteIds: string[];
+  pedagogy?: GrammarPedagogy;
 }
 
 export interface KanaItem {
@@ -254,6 +314,48 @@ export type TeachBlock =
       reading?: string;
       english: string;
       highlight?: string;
+      breakdown?: Array<{ jp: string; en: string }>;
+      note?: string;
+    }
+  | {
+      kind: "discovery";
+      before: { japanese: string; reading?: string; english: string };
+      after: { japanese: string; reading?: string; english: string };
+      question: string;
+      change: string;
+      insight: string;
+    }
+  | {
+      kind: "formation";
+      title?: string;
+      rows: Array<{ from: string; to: string; note?: string }>;
+    }
+  | {
+      kind: "contrast";
+      title: string;
+      exampleA: {
+        japanese: string;
+        reading?: string;
+        english: string;
+        label?: string;
+      };
+      exampleB: {
+        japanese: string;
+        reading?: string;
+        english: string;
+        label?: string;
+      };
+      explanation: string;
+    }
+  | {
+      kind: "dialogue";
+      title?: string;
+      lines: Array<{
+        speaker: string;
+        japanese: string;
+        reading?: string;
+        english: string;
+      }>;
     }
   | {
       kind: "breakdown";
@@ -315,6 +417,8 @@ export interface LessonPhase {
   mode: "teaching" | "practice" | "assessment";
   teachBlocks?: TeachBlock[];
   exercises: Exercise[];
+  /** Learner can skip this phase (e.g. prerequisite review) */
+  skippable?: boolean;
 }
 
 export interface LessonNotes {
@@ -322,7 +426,7 @@ export interface LessonNotes {
   remember: string[];
   commonMistakes: Array<{
     wrong: string;
-    right: string;
+    right?: string;
     note: string;
   }>;
 }

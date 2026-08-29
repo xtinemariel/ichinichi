@@ -71,7 +71,7 @@ function Highlighted({
   return (
     <>
       {text.slice(0, idx)}
-      <span className="text-[var(--accent)] underline decoration-2 underline-offset-4">
+      <span className="text-[var(--text-primary)] underline decoration-[var(--primary)] decoration-2 underline-offset-4">
         {highlight}
       </span>
       {text.slice(idx + highlight.length)}

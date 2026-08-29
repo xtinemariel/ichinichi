@@ -69,11 +69,19 @@ export function CompletionScreen({
             {lessonNotes.commonMistakes.map((m) => (
               <div
                 key={m.wrong}
-                className="rounded-sm border border-[var(--danger)]/20 bg-[var(--danger-wash)] px-4 py-3 text-sm"
+                className="rounded-md border border-[var(--error)]/30 bg-[var(--error-soft)] px-4 py-3 text-sm"
               >
-                <p>❌ {m.wrong}</p>
-                <p className="mt-1">✅ {m.right}</p>
-                <p className="mt-2 text-[var(--muted)]">{m.note}</p>
+                {m.right ? (
+                  <>
+                    <p>❌ {m.wrong}</p>
+                    <p className="mt-1">✅ {m.right}</p>
+                  </>
+                ) : (
+                  <p>⚠️ {m.wrong}</p>
+                )}
+                {m.note && (
+                  <p className="mt-2 text-[var(--muted)]">{m.note}</p>
+                )}
               </div>
             ))}
           </div>
@@ -104,7 +112,7 @@ export function CompletionScreen({
 
       <div className="mt-10">
         <p className="text-xs tracking-[0.15em] uppercase text-[var(--muted)]">
-          Check
+          Quiz
         </p>
         <div className="mt-2 flex items-end gap-3">
           <span className="font-display text-6xl text-[var(--ink)] tabular-nums">

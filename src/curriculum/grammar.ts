@@ -143,7 +143,7 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
     id: "g-kore-sore-are",
     title: "これ・それ・あれ",
     explanation:
-      "これら are standalone pronouns for “this/that/that over there.” これ = near the speaker, それ = near the listener, あれ = far from both. They stand alone as nouns—do not put another noun right after them.",
+      "これ, それ, and あれ are standalone pronouns for “this/that/that over there.” これ = near the speaker, それ = near the listener, あれ = far from both. They stand alone as nouns—do not put another noun right after them.",
     pattern: "これ / それ / あれ は [Noun] です",
     examples: [
       {
@@ -197,7 +197,7 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
     ],
     notes: [
       "この + noun; never この alone as the whole subject.",
-      "どこ + の → どの for “which ~.”",
+      "どの + noun means “which ~” (どの本 = which book). It belongs to this same set: この・その・あの・どの.",
     ],
     commonMistakes: [
       "Using これ本 instead of この本.",
@@ -1376,7 +1376,7 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
     id: "g-te-mo-ii",
     title: "てもいい (permission)",
     explanation:
-      "て-form + もいいです means “it’s okay to ~” / permission. Asking: てもいいですか. Refusing politely often uses てはいけません (related N5 pattern).",
+      "て-form + もいいです means “it’s okay to ~” / permission. Asking: てもいいですか. The opposite pattern, てはいけません, states a prohibition (“must not ~”).",
     pattern: "[Verb て-form] もいいです",
     examples: [
       {
@@ -1395,9 +1395,11 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
         english: "It’s okay to open the window.",
       },
     ],
-    notes: ["も is required: ていいです is incomplete in this pattern."],
+    notes: [
+      "てもいいです is the full form to learn — keep も whenever you speak or write politely.",
+    ],
     commonMistakes: [
-      "Dropping も (ていいですか).",
+      "Attaching もいい to the ます form (食べますてもいいです).",
       "Using dictionary form + もいい.",
     ],
     prerequisiteIds: ["g-te-form", "g-ka-questions"],

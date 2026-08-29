@@ -29,6 +29,16 @@ import { isDue, isWeak } from "@/engine/mastery";
 import { uid } from "@/lib/dates";
 import { containsKanji } from "@/lib/furigana";
 import { resolveFuriganaReading } from "@/lib/readings";
+import {
+  buildGrammarQuizExercises,
+  buildGrammarReviewPhase,
+  buildGrammarTeachContent,
+  isGrammarConcept,
+  sameMeaning,
+  uniqueByMeaning,
+} from "@/lessons/grammarLesson";
+import { GRAMMAR_POINTS } from "@/curriculum/grammar";
+import { getGrammarPedagogy } from "@/curriculum/grammarPedagogy";
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -288,25 +298,25 @@ function makeGrammarMc(grammarId: string, countsAsQuiz = false): Exercise | null
   const g = getGrammarById(grammarId);
   if (!g || g.examples.length === 0) return null;
   const example = g.examples[Math.floor(Math.random() * g.examples.length)];
-  const wrongPool = [
-    "I am a teacher.",
-    "This is water.",
-    "I do not understand.",
-    "Where is the station?",
-    "It is cold today.",
-    "I will go tomorrow.",
-    "I like coffee.",
-    "There is a book.",
-  ];
+
+  // Distractors are real translations from other grammar points, so they are
+  // always plausible; anything meaning the same as the answer is excluded.
+  const pool = uniqueByMeaning(
+    GRAMMAR_POINTS.filter((other) => other.id !== g.id)
+      .flatMap((other) => other.examples.map((e) => e.english))
+      .filter((en) => !sameMeaning(en, example.english))
+  );
+
+  const distractors = pickDistractors(example.english, shuffle(pool), 3);
+  if (distractors.length < 2) return null;
+
   return {
     id: uid("ex"),
     type: "jp_to_en",
     prompt: "What does this mean?",
     promptJapanese: example.japanese,
-    options: mcOptions(
-      example.english,
-      pickDistractors(example.english, wrongPool)
-    ),
+    promptReading: resolveFuriganaReading(example.japanese, example.reading),
+    options: mcOptions(example.english, distractors),
     correctAnswer: example.english,
     contentId: g.id,
     contentType: "grammar",
@@ -468,11 +478,11 @@ export function conceptExercises(
   if (concept.id === "c-desu") {
     exercises.push(
       makeConjugationSelect(
-        "わたしは 学生______。",
+        'Complete: わたしは 学生______。 — "I am a student."',
         "です",
         ["です", "ます", "でした", "ません"],
         "g-desu",
-        "Polite statements end with です.",
+        "です states what something is, right now. でした would make it past (“I was a student”).",
         quiz
       )
     );
@@ -491,11 +501,11 @@ export function conceptExercises(
   if (concept.id === "c-particle-wo") {
     exercises.push(
       makeConjugationSelect(
-        "コーヒー______ 飲みます。",
+        'Which particle marks the thing being drunk?\nコーヒー______ 飲みます。 — "I drink coffee."',
         "を",
-        ["を", "は", "に", "で"],
+        ["を", "が", "に", "で"],
         "g-wo",
-        "を marks the object of the verb.",
+        "を marks the direct object — the thing the verb acts on.",
         quiz
       )
     );
@@ -504,11 +514,11 @@ export function conceptExercises(
   if (concept.id === "c-particle-ni") {
     exercises.push(
       makeConjugationSelect(
-        "学校______ 行きます。",
+        'Complete: 学校______ 行きます。 — "I go to school."',
         "に",
         ["に", "を", "で", "と"],
         "g-ni",
-        "に marks destination.",
+        "に marks the destination you move toward.",
         quiz
       )
     );
@@ -547,7 +557,7 @@ export function conceptExercises(
     exercises.push({
       id: uid("ex"),
       type: "reading",
-      prompt: "What is the writer?",
+      prompt: "According to the passage, the writer is a…",
       passage: "わたしは学生です。毎日日本語を勉強します。コーヒーが好きです。",
       options: mcOptions("Student", ["Teacher", "Doctor", "Engineer"]),
       correctAnswer: "Student",
@@ -564,41 +574,38 @@ export function conceptExercises(
 
 /* ─── Teaching content builders ─── */
 
-function buildIntroPhase(concept: Concept, objectives: string[]): LessonPhase {
-  return {
-    id: uid("phase"),
-    kind: "intro",
-    title: "Today's lesson",
-    estimatedMinutes: 1,
-    mode: "teaching",
-    teachBlocks: [
-      { kind: "heading", text: concept.title },
-      { kind: "paragraph", text: concept.description },
-      {
-        kind: "callout",
-        variant: "remember",
-        title: "What you'll learn",
-        body: objectives.map((o) => `• ${o}`).join("\n"),
-      },
-    ],
-    exercises: [],
-  };
+/** After a few lessons, review warm-ups feel repetitive — offer a skip. */
+const REVIEW_SKIP_MIN_LESSONS = 3;
+
+export function reviewIsSkippable(
+  state: UserState,
+  options?: { isWelcomeBack?: boolean; forceReview?: boolean }
+): boolean {
+  if (options?.isWelcomeBack || options?.forceReview) return false;
+  return state.lessonsCompleted >= REVIEW_SKIP_MIN_LESSONS;
 }
 
-function buildReviewPhase(state: UserState): LessonPhase {
+function buildReviewPhase(
+  state: UserState,
+  options?: { skippable?: boolean }
+): LessonPhase {
   const exercises = collectReviewExercises(state, 4);
+  const skippable = options?.skippable ?? false;
   return {
     id: uid("phase"),
     kind: "review",
     title: "Quick review",
     estimatedMinutes: 3,
     mode: "practice",
+    skippable,
     teachBlocks:
       exercises.length > 0
         ? [
             {
               kind: "paragraph",
-              text: "Warm up with a few things you've already studied — recognition only.",
+              text: skippable
+                ? "A quick warm-up on what you've already studied. Skip ahead if you're ready for today's lesson."
+                : "Warm up with a few things you've already studied — recognition only.",
             },
           ]
         : undefined,
@@ -667,67 +674,9 @@ function buildGrammarTeachBlocks(concept: Concept): {
   learn: TeachBlock[];
   examples: TeachBlock[];
 } {
-  const g =
-    concept.grammarIds.map((id) => getGrammarById(id)).find(Boolean) ?? null;
-  const learn: TeachBlock[] = [];
-  const examples: TeachBlock[] = [];
-
-  if (g) {
-    learn.push({ kind: "heading", text: g.title });
-    learn.push({ kind: "paragraph", text: g.explanation });
-    learn.push({ kind: "pattern", label: "Pattern", value: g.pattern });
-
-    if (g.examples[0]) {
-      learn.push({
-        kind: "example",
-        japanese: g.examples[0].japanese,
-        reading: resolveFuriganaReading(
-          g.examples[0].japanese,
-          g.examples[0].reading
-        ),
-        english: g.examples[0].english,
-      });
-    }
-
-    examples.push({ kind: "heading", text: "More examples" });
-    examples.push({
-      kind: "paragraph",
-      text: "Read each pair. Notice the pattern repeating — don't rush to answer yet.",
-    });
-    for (const ex of g.examples) {
-      examples.push({
-        kind: "example",
-        japanese: ex.japanese,
-        reading: resolveFuriganaReading(ex.japanese, ex.reading),
-        english: ex.english,
-      });
-    }
-
-    if (g.notes?.length) {
-      examples.push({
-        kind: "callout",
-        variant: "tip",
-        title: "Note",
-        body: g.notes.join(" "),
-      });
-    }
-    if (g.commonMistakes?.length) {
-      examples.push({
-        kind: "callout",
-        variant: "mistake",
-        title: "Common mistake",
-        body: g.commonMistakes[0],
-      });
-    }
-  } else {
-    learn.push({ kind: "heading", text: concept.title });
-    learn.push({ kind: "paragraph", text: concept.description });
-  }
-
-  // Special past-tense teaching
+  // Special overrides for bundled/synthetic concepts
   if (concept.id === "c-past-tense") {
-    learn.length = 0;
-    learn.push(
+    const learn: TeachBlock[] = [
       { kind: "heading", text: "Talking About the Past" },
       {
         kind: "paragraph",
@@ -749,10 +698,9 @@ function buildGrammarTeachBlocks(concept: Concept): {
         variant: "remember",
         title: "Remember",
         body: "ます = present/future · ました = past · ません = negative · ませんでした = past negative",
-      }
-    );
-    examples.length = 0;
-    examples.push(
+      },
+    ];
+    const examples: TeachBlock[] = [
       { kind: "heading", text: "In full sentences" },
       {
         kind: "example",
@@ -776,104 +724,118 @@ function buildGrammarTeachBlocks(concept: Concept): {
         kind: "callout",
         variant: "mistake",
         title: "Common mistake",
-        body: "❌ 食べませんでした = \"I don't eat\"\n✅ 食べませんでした = \"I did not eat\" (past)",
-      }
-    );
+        body: '❌ 食べませんでした = "I don\'t eat"\n✅ 食べませんでした = "I did not eat" (past)',
+      },
+    ];
+    return { learn, examples };
   }
 
   if (concept.id === "c-word-order") {
-    learn.length = 0;
-    learn.push(
-      { kind: "heading", text: "Japanese Word Order" },
-      {
-        kind: "paragraph",
-        text: "English is often Subject–Verb–Object. Japanese is typically Subject–Object–Verb — the verb comes at the end.",
-      },
-      {
-        kind: "example",
-        japanese: "わたしは コーヒーを 飲みます。",
-        english: "I drink coffee.",
-      },
-      {
-        kind: "breakdown",
-        title: "Break it down",
-        parts: [
-          { jp: "わたしは", en: "I (topic)" },
-          { jp: "コーヒーを", en: "coffee (object)" },
-          { jp: "飲みます", en: "drink (verb — at the end)" },
-        ],
-      }
-    );
+    return {
+      learn: [
+        { kind: "heading", text: "Japanese Word Order" },
+        {
+          kind: "paragraph",
+          text: "English is often Subject–Verb–Object. Japanese is typically Subject–Object–Verb — the verb comes at the end.",
+        },
+        {
+          kind: "example",
+          japanese: "わたしは コーヒーを 飲みます。",
+          english: "I drink coffee.",
+        },
+        {
+          kind: "breakdown",
+          title: "Break it down",
+          parts: [
+            { jp: "わたしは", en: "I (topic)" },
+            { jp: "コーヒーを", en: "coffee (object)" },
+            { jp: "飲みます", en: "drink (verb — at the end)" },
+          ],
+        },
+      ],
+      examples: [],
+    };
   }
 
   if (concept.id === "c-pronunciation") {
-    learn.length = 0;
-    learn.push(
-      { kind: "heading", text: "How Japanese Sounds" },
-      {
-        kind: "paragraph",
-        text: "Japanese has five pure vowels. Each mora (beat) gets roughly equal time — unlike English stress.",
-      },
-      {
-        kind: "hero_character",
-        character: "あ",
-        sound: "a",
-        romaji: "a",
-        note: "Open \"ah\"",
-      },
-      {
-        kind: "hero_character",
-        character: "い",
-        sound: "i",
-        romaji: "i",
-        note: "Like \"ee\"",
-      },
-      {
-        kind: "hero_character",
-        character: "う",
-        sound: "u",
-        romaji: "u",
-        note: "Like \"oo\"",
-      },
-      {
-        kind: "hero_character",
-        character: "え",
-        sound: "e",
-        romaji: "e",
-        note: "Like \"eh\"",
-      },
-      {
-        kind: "hero_character",
-        character: "お",
-        sound: "o",
-        romaji: "o",
-        note: "Like \"oh\"",
-      },
-      {
-        kind: "callout",
-        variant: "tip",
-        title: "Try this",
-        body: "Say a-i-u-e-o slowly, then at a steady rhythm. Audio can be added later — for now, speak aloud.",
-      }
-    );
-    examples.length = 0;
-    examples.push(
-      { kind: "heading", text: "Meet the vowels together" },
-      {
-        kind: "table",
-        headers: ["Character", "Sound"],
-        rows: [
-          ["あ", "a"],
-          ["い", "i"],
-          ["う", "u"],
-          ["え", "e"],
-          ["お", "o"],
-        ],
-      }
-    );
+    return {
+      learn: [
+        { kind: "heading", text: "How Japanese Sounds" },
+        {
+          kind: "paragraph",
+          text: "Japanese has five pure vowels. Each mora (beat) gets roughly equal time — unlike English stress.",
+        },
+        {
+          kind: "hero_character",
+          character: "あ",
+          sound: "a",
+          romaji: "a",
+          note: 'Open "ah"',
+        },
+        {
+          kind: "hero_character",
+          character: "い",
+          sound: "i",
+          romaji: "i",
+          note: 'Like "ee"',
+        },
+        {
+          kind: "hero_character",
+          character: "う",
+          sound: "u",
+          romaji: "u",
+          note: 'Like "oo"',
+        },
+        {
+          kind: "hero_character",
+          character: "え",
+          sound: "e",
+          romaji: "e",
+          note: 'Like "eh"',
+        },
+        {
+          kind: "hero_character",
+          character: "お",
+          sound: "o",
+          romaji: "o",
+          note: 'Like "oh"',
+        },
+        {
+          kind: "callout",
+          variant: "tip",
+          title: "Try this",
+          body: "Say a-i-u-e-o slowly, then at a steady rhythm. Audio can be added later — for now, speak aloud.",
+        },
+      ],
+      examples: [
+        { kind: "heading", text: "Meet the vowels together" },
+        {
+          kind: "table",
+          headers: ["Character", "Sound"],
+          rows: [
+            ["あ", "a"],
+            ["い", "i"],
+            ["う", "u"],
+            ["え", "e"],
+            ["お", "o"],
+          ],
+        },
+      ],
+    };
   }
 
-  return { learn, examples };
+  if (isGrammarConcept(concept)) {
+    const { learn, examples } = buildGrammarTeachContent(concept);
+    return { learn, examples };
+  }
+
+  return {
+    learn: [
+      { kind: "heading", text: concept.title },
+      { kind: "paragraph", text: concept.description },
+    ],
+    examples: [],
+  };
 }
 
 function buildVocabTeachBlocks(concept: Concept): {
@@ -1005,15 +967,16 @@ function buildNotes(concept: Concept): LessonNotes {
       "ませんでした = polite past negative"
     );
     mistakes.push({
-      wrong: "食べませんでした = I don't eat",
-      right: "食べませんでした = I did not eat",
-      note: "ませんでした is past negative, not present.",
+      wrong: "食べません",
+      right: "食べませんでした",
+      note: "For “I did not eat,” ません is not enough — でした is what makes it past.",
     });
   } else if (g) {
+    const pedagogy = getGrammarPedagogy(g);
     remember.push(g.pattern);
-    if (g.notes) remember.push(...g.notes.slice(0, 2));
-    for (const m of g.commonMistakes.slice(0, 2)) {
-      mistakes.push({ wrong: m, right: g.pattern, note: m });
+    if (pedagogy.meaningConcept) remember.push(pedagogy.meaningConcept);
+    for (const m of (pedagogy.mistakes ?? []).slice(0, 2)) {
+      mistakes.push({ wrong: m.wrong, right: m.right, note: m.note });
     }
   } else if (concept.id === "c-pronunciation") {
     remember.push(
@@ -1079,11 +1042,17 @@ function lessonMeta(concept: Concept): {
     SENTENCE_BUILDING: "Production",
   };
 
-  const objectives = [
-    `Understand: ${concept.title}`,
-    "See clear examples",
-    "Check your understanding",
-  ];
+  const objectives = isGrammarConcept(concept)
+    ? [
+        `Discover how ${concept.title} works`,
+        "Build from recognition to independent recall",
+        "Use the grammar in new sentences",
+      ]
+    : [
+        `Understand: ${concept.title}`,
+        "See clear examples",
+        "Build from recognition to independent recall",
+      ];
 
   return {
     title: concept.title,
@@ -1096,7 +1065,7 @@ function lessonMeta(concept: Concept): {
 
 /**
  * Deterministic curriculum-bound lesson generator.
- * Structure: Intro → Review → Learn → Examples → Check
+ * Structure: Review → Learn → Examples → Quiz
  */
 export function generateLesson(
   conceptId: string,
@@ -1105,19 +1074,35 @@ export function generateLesson(
 ): GeneratedLesson {
   const concept = getConceptById(conceptId) ?? CONCEPTS[0];
   const meta = lessonMeta(concept);
-  const { learn, examples } = buildTeachContent(concept);
+  const teachContent = buildTeachContent(concept);
+  const { learn, examples } = teachContent;
+  const grammarTeach =
+    isGrammarConcept(concept) ? buildGrammarTeachContent(concept) : null;
   const notes = buildNotes(concept);
   const isKana = concept.type === "kana" || concept.lessonType === "KANA";
+  const isGrammar = Boolean(grammarTeach?.grammar);
   const skipReview = concept.order <= 2 && !options?.isWelcomeBack;
 
   const phases: LessonPhase[] = [];
 
-  phases.push(buildIntroPhase(concept, meta.objectives));
+  const reviewSkippable = reviewIsSkippable(state, options);
 
   if (!skipReview || options?.isWelcomeBack) {
-    const review = buildReviewPhase(state);
-    if (review.exercises.length > 0 || options?.isWelcomeBack) {
-      phases.push(review);
+    if (isGrammar) {
+      const review = buildGrammarReviewPhase(
+        concept,
+        state,
+        collectReviewExercises,
+        { skippable: reviewSkippable }
+      );
+      if (review.exercises.length > 0 || options?.isWelcomeBack) {
+        phases.push(review);
+      }
+    } else {
+      const review = buildReviewPhase(state, { skippable: reviewSkippable });
+      if (review.exercises.length > 0 || options?.isWelcomeBack) {
+        phases.push(review);
+      }
     }
   }
 
@@ -1136,40 +1121,62 @@ export function generateLesson(
       id: uid("phase"),
       kind: "examples",
       title: "Examples",
-      estimatedMinutes: 3,
+      estimatedMinutes: 4,
       mode: "teaching",
       teachBlocks: examples,
       exercises: [],
     });
   }
 
-  // Single knowledge check — not practice + recall + quiz
-  const checkExercises = shuffle([
-    ...conceptExercises(concept, "practice"),
-    ...conceptExercises(concept, "recall"),
-  ])
-    .filter((ex, i, arr) => {
-      // Dedupe by contentId + prompt when possible
-      const key = `${ex.contentId ?? ""}|${ex.prompt}|${ex.correctAnswer}`;
-      return arr.findIndex((e) => `${e.contentId ?? ""}|${e.prompt}|${e.correctAnswer}` === key) === i;
-    })
-    .slice(0, 7)
-    .map((e) => ({ ...e, countsAsQuiz: true }));
+  if (isGrammar && grammarTeach?.grammar && grammarTeach.pedagogy) {
+    const { grammar, pedagogy } = grammarTeach;
 
-  phases.push({
-    id: uid("phase"),
-    kind: "quiz",
-    title: "Check",
-    estimatedMinutes: 5,
-    mode: "practice",
-    teachBlocks: [
-      {
-        kind: "paragraph",
-        text: "A short check on what you just learned. Tap to answer — you'll get feedback as you go.",
-      },
-    ],
-    exercises: checkExercises,
-  });
+    phases.push({
+      id: uid("phase"),
+      kind: "quiz",
+      title: "Quiz",
+      estimatedMinutes: 7,
+      mode: "assessment",
+      teachBlocks: [
+        {
+          kind: "paragraph",
+          text: "Start with recognition, then work toward using the pattern from memory. You'll get a brief explanation after every answer.",
+        },
+      ],
+      exercises: buildGrammarQuizExercises(grammar, pedagogy),
+    });
+  } else {
+    const staged = [
+      ...conceptExercises(concept, "practice").slice(0, 2),
+      ...conceptExercises(concept, "quiz").slice(0, 2),
+      ...conceptExercises(concept, "recall"),
+    ];
+    const seen = new Set<string>();
+    const quizExercises = staged
+      .filter((exercise) => {
+        const key = `${exercise.contentId ?? ""}|${exercise.prompt}|${exercise.correctAnswer}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .slice(0, 7)
+      .map((exercise) => ({ ...exercise, countsAsQuiz: true }));
+
+    phases.push({
+      id: uid("phase"),
+      kind: "quiz",
+      title: "Quiz",
+      estimatedMinutes: 7,
+      mode: "assessment",
+      teachBlocks: [
+        {
+          kind: "paragraph",
+          text: "Start with recognition, then work toward answering from memory. You'll get a brief explanation after every answer.",
+        },
+      ],
+      exercises: quizExercises,
+    });
+  }
 
   const cleaned = phases.filter(
     (p) =>
@@ -1187,7 +1194,7 @@ export function generateLesson(
     description: options?.isWelcomeBack
       ? "We'll review what you were due to remember, then continue your path."
       : meta.description,
-    estimatedMinutes: 18,
+    estimatedMinutes: isGrammar ? 20 : 18,
     objectives: meta.objectives,
     phases: cleaned,
     notes,
@@ -1300,9 +1307,9 @@ export function generateQuickReview(
       {
         id: uid("phase"),
         kind: "quiz",
-        title: "Check",
+        title: "Quiz",
         estimatedMinutes: 5,
-        mode: "practice",
+        mode: "assessment",
         teachBlocks: [
           {
             kind: "paragraph",

@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { LessonPlayer } from "@/components/lesson/LessonPlayer";
 import { CompletionScreen } from "@/components/lesson/CompletionScreen";
 import { SaveProgressPrompt } from "@/components/auth/SaveProgressPrompt";
@@ -9,6 +11,7 @@ import { recommendLesson } from "@/engine/recommend";
 
 export function LessonPageClient() {
   const router = useRouter();
+  const [confirmingExit, setConfirmingExit] = useState(false);
   const {
     activeLesson,
     lastCompletion,
@@ -82,19 +85,25 @@ export function LessonPageClient() {
   }
 
   return (
-    <LessonPlayer
-      lesson={activeLesson}
-      onComplete={(result) => completeLesson(result, activeLesson)}
-      onExit={() => {
-        if (
-          confirm(
-            "Leave this lesson? Progress in this session won’t be saved."
-          )
-        ) {
+    <>
+      <LessonPlayer
+        lesson={activeLesson}
+        onComplete={(result) => completeLesson(result, activeLesson)}
+        onExit={() => setConfirmingExit(true)}
+      />
+      <ConfirmDialog
+        open={confirmingExit}
+        title="Leave this lesson?"
+        description="Progress in this session won’t be saved."
+        confirmLabel="Leave lesson"
+        tone="danger"
+        onCancel={() => setConfirmingExit(false)}
+        onConfirm={() => {
+          setConfirmingExit(false);
           discardLesson();
           router.push("/");
-        }
-      }}
-    />
+        }}
+      />
+    </>
   );
 }

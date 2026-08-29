@@ -105,7 +105,7 @@ export function CurriculumScreen() {
       </div>
 
       {warning && (
-        <div className="fixed bottom-24 inset-x-4 mx-auto max-w-lg rounded-sm border border-[var(--danger)]/30 bg-[var(--danger-wash)] px-4 py-3 text-sm text-[var(--ink)]">
+        <div className="fixed bottom-24 inset-x-4 mx-auto max-w-lg rounded-md border border-[var(--error)]/35 bg-[var(--error-soft)] px-4 py-3 text-sm text-[var(--text-primary)]">
           {warning}
           <button
             type="button"

@@ -61,37 +61,69 @@ export function buildFuriganaSegments(
     }
   }
 
+  // Kana groups anchor the alignment: each must sit exactly where the previous
+  // group ended, so the only free choice is how much reading each kanji run
+  // takes. Scanning for the *first* match of the next kana run is wrong when
+  // that kana also occurs inside the preceding kanji's reading (母 + は against
+  // はは|は|せんせい). Instead every split is scored and the most plausible one
+  // wins, using the rule of thumb that a kanji is worth about two kana.
+  const KANA_PER_KANJI = 2;
+  const best = new Map<string, Split | null>();
+
+  type Split = { score: number; lengths: number[] };
+
+  function solve(groupIndex: number, pos: number): Split | null {
+    if (groupIndex === groups.length) {
+      return pos === normalized.length ? { score: 0, lengths: [] } : null;
+    }
+
+    const key = `${groupIndex}:${pos}`;
+    const cached = best.get(key);
+    if (cached !== undefined) return cached;
+
+    const group = groups[groupIndex];
+    let result: Split | null = null;
+
+    if (!group.kanji) {
+      // Readings never carry the spaces some surfaces use as beginner aids.
+      const needle = normalizeReading(group.text);
+      if (normalized.startsWith(needle, pos)) {
+        const rest = solve(groupIndex + 1, pos + needle.length);
+        if (rest) {
+          result = { score: rest.score, lengths: [needle.length, ...rest.lengths] };
+        }
+      }
+    } else {
+      const chars = [...group.text].length;
+      const expected = chars * KANA_PER_KANJI;
+      // A kanji cannot be silent, so it takes at least one kana per character.
+      for (let len = chars; pos + len <= normalized.length; len++) {
+        const rest = solve(groupIndex + 1, pos + len);
+        if (!rest) continue;
+        const score = rest.score + Math.abs(len - expected);
+        if (!result || score < result.score) {
+          result = { score, lengths: [len, ...rest.lengths] };
+        }
+      }
+    }
+
+    best.set(key, result);
+    return result;
+  }
+
+  const split = solve(0, 0);
+  if (!split) {
+    return [{ text: surface, furigana: normalized }];
+  }
+
   const segments: FuriganaSegment[] = [];
   let readingPos = 0;
-
-  for (let i = 0; i < groups.length; i++) {
-    const group = groups[i];
-    if (!group.kanji) {
-      const idx = normalized.indexOf(group.text, readingPos);
-      if (idx === -1) {
-        return [{ text: surface, furigana: normalized }];
-      }
-      readingPos = idx + group.text.length;
-      segments.push({ text: group.text });
-      continue;
-    }
-
-    const nextKana = groups.slice(i + 1).find((g) => !g.kanji);
-    let end = normalized.length;
-    if (nextKana) {
-      const idx = normalized.indexOf(nextKana.text, readingPos);
-      if (idx === -1) {
-        return [{ text: surface, furigana: normalized }];
-      }
-      end = idx;
-    }
-
-    const furigana = normalized.slice(readingPos, end);
-    segments.push(
-      furigana ? { text: group.text, furigana } : { text: group.text }
-    );
-    readingPos = end;
-  }
+  groups.forEach((group, i) => {
+    const len = split.lengths[i];
+    const furigana = normalized.slice(readingPos, readingPos + len);
+    readingPos += len;
+    segments.push(group.kanji ? { text: group.text, furigana } : { text: group.text });
+  });
 
   return segments;
 }

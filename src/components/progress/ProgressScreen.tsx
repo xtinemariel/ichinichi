@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useApp } from "@/components/AppProvider";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { formatMinutes } from "@/lib/dates";
 
 export function ProgressScreen() {
+  const [confirmingReset, setConfirmingReset] = useState(false);
   const {
     state,
     categoryProgress,
@@ -15,7 +18,8 @@ export function ProgressScreen() {
   } = useApp();
 
   return (
-    <div className="mx-auto max-w-lg px-5 pb-28 pt-10 animate-fade-up">
+    <>
+      <div className="mx-auto max-w-lg px-5 pb-28 pt-10 animate-fade-up">
       <p className="text-xs tracking-[0.2em] uppercase text-[var(--muted)]">
         Progress
       </p>
@@ -50,9 +54,9 @@ export function ProgressScreen() {
                 <span>{label}</span>
                 <span className="tabular-nums text-[var(--muted)]">{value}%</span>
               </div>
-              <div className="h-1 overflow-hidden rounded-full bg-[var(--line)]">
+              <div className="h-1 overflow-hidden rounded-full bg-[var(--progress-track)]">
                 <div
-                  className="h-full rounded-full bg-[var(--accent)]"
+                  className="h-full rounded-full bg-[var(--progress-fill)]"
                   style={{ width: `${value}%` }}
                 />
               </div>
@@ -106,10 +110,10 @@ export function ProgressScreen() {
               key={n}
               type="button"
               onClick={() => setDailyGoal(n)}
-              className={`flex-1 rounded-sm border py-3 text-sm transition-colors ${
+              className={`flex-1 rounded-md border py-3 text-sm transition-colors ${
                 state.preferences.dailyGoalLessons === n
                   ? "border-[var(--accent)] bg-[var(--accent-wash)] text-[var(--ink)]"
-                  : "border-[var(--line)] text-[var(--muted)] hover:border-[var(--accent-soft)]"
+                  : "border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] hover:border-[var(--accent-soft)] hover:bg-[var(--surface-raised)]"
               }`}
             >
               {n * 20} min
@@ -120,26 +124,31 @@ export function ProgressScreen() {
 
       <button
         type="button"
-        onClick={() => {
-          if (
-            confirm(
-              "Reset all progress? This cannot be undone."
-            )
-          ) {
-            resetProgress();
-          }
-        }}
+        onClick={() => setConfirmingReset(true)}
         className="mt-16 w-full py-3 text-xs text-[var(--muted)] hover:text-[var(--danger)]"
       >
         Reset progress
       </button>
-    </div>
+      </div>
+      <ConfirmDialog
+        open={confirmingReset}
+        title="Reset all progress?"
+        description="This permanently removes your lesson history and cannot be undone."
+        confirmLabel="Reset progress"
+        tone="danger"
+        onCancel={() => setConfirmingReset(false)}
+        onConfirm={() => {
+          setConfirmingReset(false);
+          resetProgress();
+        }}
+      />
+    </>
   );
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-[var(--line)] bg-[var(--wash)] px-4 py-4">
+    <div className="rounded-md border border-[var(--border)] bg-[var(--surface)] px-4 py-4">
       <p className="text-xs text-[var(--muted)]">{label}</p>
       <p className="mt-1 font-display text-2xl text-[var(--ink)]">{value}</p>
     </div>

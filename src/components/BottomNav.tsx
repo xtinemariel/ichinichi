@@ -11,10 +11,16 @@ const links = [
 
 export function BottomNav() {
   const pathname = usePathname();
-  if (pathname.startsWith("/lesson") || pathname.startsWith("/auth")) return null;
+  if (
+    pathname.startsWith("/lesson") ||
+    pathname.startsWith("/check") ||
+    pathname.startsWith("/auth")
+  ) {
+    return null;
+  }
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-[var(--line)] bg-[var(--paper)]/90 backdrop-blur-md">
+    <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-lg items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
         {links.map((link) => {
           const active =
@@ -27,7 +33,7 @@ export function BottomNav() {
               href={link.href}
               className={`flex flex-1 flex-col items-center gap-1 py-3 text-xs tracking-wide transition-colors ${
                 active
-                  ? "text-[var(--ink)] font-medium"
+                  ? "text-[var(--primary)] font-medium"
                   : "text-[var(--muted)] hover:text-[var(--ink)]"
               }`}
             >

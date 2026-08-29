@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { Exercise, KnowledgeCheck } from "@/lib/types";
 import { ExerciseRenderer } from "@/components/exercises/ExerciseRenderer";
 
@@ -24,7 +24,7 @@ interface Props {
 }
 
 export function KnowledgeCheckPlayer({ check, onComplete, onExit }: Props) {
-  const startedAt = useMemo(() => Date.now(), []);
+  const [startedAt] = useState(Date.now);
   const [index, setIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [answers, setAnswers] = useState<
@@ -104,9 +104,9 @@ export function KnowledgeCheckPlayer({ check, onComplete, onExit }: Props) {
         Question {index + 1} of {total}
       </p>
 
-      <div className="mt-3 h-[3px] overflow-hidden rounded-full bg-[var(--line)]">
+      <div className="mt-3 h-[3px] overflow-hidden rounded-full bg-[var(--progress-track)]">
         <div
-          className="h-full rounded-full bg-[var(--accent)] transition-all"
+          className="h-full rounded-full bg-[var(--progress-fill)] transition-all"
           style={{ width: `${((index + 0.2) / total) * 100}%` }}
         />
       </div>

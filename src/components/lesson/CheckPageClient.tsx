@@ -1,13 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { KnowledgeCheckPlayer } from "@/components/lesson/KnowledgeCheckPlayer";
 import { KnowledgeCheckResult } from "@/components/lesson/KnowledgeCheckResult";
 import { generateLesson } from "@/lessons/generator";
 
 export function CheckPageClient() {
   const router = useRouter();
+  const [confirmingExit, setConfirmingExit] = useState(false);
   const {
     state,
     knowledgeCheck,
@@ -53,16 +56,26 @@ export function CheckPageClient() {
 
   if (knowledgeCheck?.check) {
     return (
-      <KnowledgeCheckPlayer
-        check={knowledgeCheck.check}
-        onComplete={completeKnowledgeCheck}
-        onExit={() => {
-          if (confirm("Leave this knowledge check?")) {
+      <>
+        <KnowledgeCheckPlayer
+          check={knowledgeCheck.check}
+          onComplete={completeKnowledgeCheck}
+          onExit={() => setConfirmingExit(true)}
+        />
+        <ConfirmDialog
+          open={confirmingExit}
+          title="Leave this knowledge check?"
+          description="Your answers in this check won’t be saved."
+          confirmLabel="Leave check"
+          tone="danger"
+          onCancel={() => setConfirmingExit(false)}
+          onConfirm={() => {
+            setConfirmingExit(false);
             clearKnowledgeCheck();
             router.push("/");
-          }
-        }}
-      />
+          }}
+        />
+      </>
     );
   }
 

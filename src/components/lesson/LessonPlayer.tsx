@@ -23,7 +23,6 @@ type Step =
   | { kind: "exercise"; phaseIndex: number; exerciseIndex: number };
 
 const PHASE_ORDER: PhaseKind[] = [
-  "intro",
   "review",
   "learn",
   "examples",
@@ -34,13 +33,10 @@ const PHASE_META: Record<
   PhaseKind,
   { label: string; tone: string }
 > = {
-  intro: { label: "Lesson", tone: "teaching" },
   review: { label: "Review", tone: "practice" },
   learn: { label: "Learn", tone: "teaching" },
   examples: { label: "Examples", tone: "teaching" },
-  practice: { label: "Practice", tone: "practice" },
-  recall: { label: "Recall", tone: "practice" },
-  quiz: { label: "Check", tone: "assessment" },
+  quiz: { label: "Quiz", tone: "assessment" },
 };
 
 function initialStep(phases: LessonPhase[]): Step {
@@ -62,7 +58,7 @@ export function LessonPlayer({ lesson, onComplete, onExit }: Props) {
   const [practiceScore, setPracticeScore] = useState(0);
   const [practiceTotal, setPracticeTotal] = useState(0);
   const [showNotes, setShowNotes] = useState(false);
-  /** Extra retry exercises injected after practice mistakes */
+  /** Extra retry exercises injected before the quiz's final recall question. */
   const [extraExercises, setExtraExercises] = useState<
     Record<number, Exercise[]>
   >({});
@@ -70,7 +66,11 @@ export function LessonPlayer({ lesson, onComplete, onExit }: Props) {
   const phase = lesson.phases[step.phaseIndex];
   const phaseExercises = useMemo(() => {
     const extras = extraExercises[step.phaseIndex] ?? [];
-    return [...(phase?.exercises ?? []), ...extras];
+    const exercises = phase?.exercises ?? [];
+    if (phase?.kind === "quiz" && exercises.length > 1) {
+      return [...exercises.slice(0, -1), ...extras, exercises[exercises.length - 1]];
+    }
+    return [...exercises, ...extras];
   }, [phase, extraExercises, step.phaseIndex]);
 
   const trackPhases = useMemo(() => {
@@ -187,10 +187,15 @@ export function LessonPlayer({ lesson, onComplete, onExit }: Props) {
     setPracticeScore(nextPracticeScore);
     setPracticeTotal(nextPracticeTotal);
 
-    // Adaptive: on practice miss, queue a similar retry if possible
+    // Adaptive: keep retries in the same flow, before the final recall item.
+    const isFinalRecall =
+      phase.kind === "quiz" &&
+      exercise.id === phase.exercises[phase.exercises.length - 1]?.id;
+    const supportsRetry =
+      !isFinalRecall && (phase.kind === "quiz" || phase.mode === "practice");
     if (
       !correct &&
-      phase.mode === "practice" &&
+      supportsRetry &&
       exercise.contentId &&
       (extraExercises[step.phaseIndex]?.length ?? 0) < 2
     ) {
@@ -209,15 +214,10 @@ export function LessonPlayer({ lesson, onComplete, onExit }: Props) {
 
     if (step.kind !== "exercise") return;
 
-    const list = [
-      ...(phase.exercises ?? []),
-      ...(extraExercises[step.phaseIndex] ?? []),
-      // account for retry just added
-    ];
     const effectiveLen =
       phase.exercises.length +
       (extraExercises[step.phaseIndex]?.length ?? 0) +
-      (!correct && phase.mode === "practice" && (extraExercises[step.phaseIndex]?.length ?? 0) < 2
+      (!correct && supportsRetry && (extraExercises[step.phaseIndex]?.length ?? 0) < 2
         ? 1
         : 0);
 
@@ -230,8 +230,6 @@ export function LessonPlayer({ lesson, onComplete, onExit }: Props) {
       return;
     }
 
-    // Use latest extras length after state update — finish phase
-    void list;
     const totals = {
       score: nextScore,
       quizScore: nextQuizScore,
@@ -289,11 +287,19 @@ export function LessonPlayer({ lesson, onComplete, onExit }: Props) {
             {lesson.notes.commonMistakes.map((m) => (
               <div
                 key={m.wrong}
-                className="rounded-sm border border-[var(--danger)]/20 bg-[var(--danger-wash)] px-4 py-3 text-sm"
+                className="rounded-md border border-[var(--error)]/30 bg-[var(--error-soft)] px-4 py-3 text-sm"
               >
-                <p className="text-[var(--ink-soft)]">❌ {m.wrong}</p>
-                <p className="mt-1 text-[var(--ink)]">✅ {m.right}</p>
-                <p className="mt-2 text-[var(--muted)]">{m.note}</p>
+                {m.right ? (
+                  <>
+                    <p className="text-[var(--ink-soft)]">❌ {m.wrong}</p>
+                    <p className="mt-1 text-[var(--ink)]">✅ {m.right}</p>
+                  </>
+                ) : (
+                  <p className="text-[var(--ink)]">⚠️ {m.wrong}</p>
+                )}
+                {m.note && (
+                  <p className="mt-2 text-[var(--muted)]">{m.note}</p>
+                )}
               </div>
             ))}
           </div>
@@ -312,13 +318,24 @@ export function LessonPlayer({ lesson, onComplete, onExit }: Props) {
         >
           ← Exit
         </button>
-        <button
-          type="button"
-          onClick={() => setShowNotes(true)}
-          className="text-xs text-[var(--muted)] hover:text-[var(--ink)]"
-        >
-          Notes
-        </button>
+        <div className="flex items-center gap-3">
+          {phase?.kind === "review" && phase.skippable && (
+            <button
+              type="button"
+              onClick={() => goToPhase(step.phaseIndex + 1)}
+              className="text-xs text-[var(--muted)] hover:text-[var(--primary)]"
+            >
+              Skip review
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setShowNotes(true)}
+            className="text-xs text-[var(--muted)] hover:text-[var(--ink)]"
+          >
+            Notes
+          </button>
+        </div>
       </header>
 
       <div className="mb-2 text-center">
@@ -353,12 +370,12 @@ export function LessonPlayer({ lesson, onComplete, onExit }: Props) {
       </div>
 
       <div
-        className={`mb-6 rounded-sm border px-3 py-2 ${
+        className={`mb-6 rounded-md border px-3 py-2 ${
           meta.tone === "assessment"
-            ? "border-[var(--ink)]/20 bg-[var(--wash)]"
+            ? "border-[var(--secondary)]/25 bg-[var(--surface)]"
             : meta.tone === "teaching"
-              ? "border-[var(--accent-soft)] bg-[var(--accent-wash)]/50"
-              : "border-[var(--line)] bg-[var(--paper)]"
+              ? "border-[var(--accent-soft)] bg-[var(--primary-soft)]/45"
+              : "border-[var(--border)] bg-[var(--surface)]"
         }`}
       >
         <div className="flex items-center justify-between text-xs">
@@ -371,7 +388,7 @@ export function LessonPlayer({ lesson, onComplete, onExit }: Props) {
             )}
             {meta.tone === "assessment" && (
               <span className="ml-2 font-normal normal-case tracking-normal text-[var(--muted)]">
-                — check what you learned
+                — from recognition to recall
               </span>
             )}
             {meta.tone === "practice" && phase?.kind === "review" && (
@@ -380,13 +397,20 @@ export function LessonPlayer({ lesson, onComplete, onExit }: Props) {
               </span>
             )}
           </span>
-          <span className="tabular-nums text-[var(--muted)]">~{minutesLeft}m</span>
+          <span className="tabular-nums text-[var(--muted)]">
+            {step.kind === "exercise" && phase?.kind === "quiz"
+              ? `${step.exerciseIndex + 1} / ${phaseExercises.length}`
+              : `~${minutesLeft}m`}
+          </span>
         </div>
-        <div className="mt-2 h-[3px] overflow-hidden rounded-full bg-[var(--line)]">
+        <div className="mt-2 h-[3px] overflow-hidden rounded-full bg-[var(--progress-track)]">
           <div
-            className="h-full rounded-full bg-[var(--accent)] transition-all duration-500"
+            className="h-full rounded-full bg-[var(--progress-fill)] transition-all duration-500"
             style={{
-              width: `${((step.phaseIndex + (isTeaching ? 0.3 : 0.7)) / lesson.phases.length) * 100}%`,
+              width:
+                step.kind === "exercise" && phase?.kind === "quiz"
+                  ? `${((step.exerciseIndex + 1) / phaseExercises.length) * 100}%`
+                  : `${((step.phaseIndex + (isTeaching ? 0.3 : 0.7)) / lesson.phases.length) * 100}%`,
             }}
           />
         </div>
@@ -396,13 +420,28 @@ export function LessonPlayer({ lesson, onComplete, onExit }: Props) {
         {step.kind === "teach" && phase?.teachBlocks && (
           <div className="space-y-8">
             <TeachBlocks blocks={phase.teachBlocks} />
-            <button
-              type="button"
-              onClick={advanceFromTeach}
-              className="btn-primary w-full"
-            >
-              {phase.exercises.length > 0 ? "Start check" : "Continue"}
-            </button>
+            <div className="flex flex-col gap-3">
+              {phase.skippable && phase.kind === "review" && (
+                <button
+                  type="button"
+                  onClick={() => goToPhase(step.phaseIndex + 1)}
+                  className="w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--text-secondary)] hover:border-[var(--accent-soft)] hover:bg-[var(--surface-raised)] hover:text-[var(--text-primary)]"
+                >
+                  Skip review — I know this already
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={advanceFromTeach}
+                className="btn-primary w-full"
+              >
+                {phase.exercises.length > 0
+                  ? phase.kind === "review"
+                    ? "Start review"
+                    : "Start quiz"
+                  : "Continue"}
+              </button>
+            </div>
           </div>
         )}
 
@@ -410,7 +449,12 @@ export function LessonPlayer({ lesson, onComplete, onExit }: Props) {
           <ExerciseRenderer
             key={phaseExercises[step.exerciseIndex].id}
             exercise={phaseExercises[step.exerciseIndex]}
-            mode={phase.mode === "assessment" ? "assessment" : "practice"}
+            mode={phase.kind === "quiz" ? "practice" : phase.mode === "assessment" ? "assessment" : "practice"}
+            allowRetry={
+              phaseExercises[step.exerciseIndex].id !==
+                phase.exercises[phase.exercises.length - 1]?.id &&
+              (phase.kind === "quiz" || phase.mode === "practice")
+            }
             onResult={(correct, userAnswer) =>
               handleExerciseResult(
                 phaseExercises[step.exerciseIndex],

@@ -145,7 +145,7 @@ export function AuthScreen({
         )}
 
         {info && (
-          <p className="text-sm text-[var(--accent)] leading-relaxed">{info}</p>
+          <p className="text-sm text-[var(--info)] leading-relaxed">{info}</p>
         )}
         {error && (
           <p className="text-sm text-[var(--danger)] leading-relaxed">{error}</p>

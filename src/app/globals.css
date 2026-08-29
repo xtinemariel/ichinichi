@@ -1,19 +1,51 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #f3f4f6;
-  --wash: #eaecef;
-  --ink: #161a24;
-  --ink-soft: #3a4154;
-  --muted: #7a8194;
-  --line: #d5d8e0;
-  --accent: #2f5d50;
-  --accent-soft: #6a9a8a;
-  --accent-wash: #e4efea;
-  --danger: #9b4a3c;
-  --danger-wash: #f3e8e5;
-  --background: var(--paper);
-  --foreground: var(--ink);
+  color-scheme: light;
+
+  /* Warm paper foundation */
+  --background: #f4f0e6;
+  --surface: #f8f5ed;
+  --surface-subtle: #eee9dd;
+  --surface-raised: #fbf8f1;
+  --text-primary: #34332f;
+  --text-secondary: #625f58;
+  --text-muted: #706c64;
+  --border: #dcd5c7;
+  --border-strong: #c9c0b1;
+
+  /* Muted Japanese-stationery accents */
+  --primary: #5e735b;
+  --primary-hover: #52674f;
+  --primary-soft: #dfe7dc;
+  --secondary: #786d86;
+  --secondary-soft: #e9e4ec;
+  --accent-warm: #9b6752;
+  --accent-warm-soft: #f0e0d6;
+  --success: #657b62;
+  --success-soft: #dfe7dc;
+  --error: #975f54;
+  --error-soft: #f0ded9;
+  --info: #536b76;
+  --info-soft: #e0e8ea;
+  --on-primary: #faf7f0;
+  --progress-track: #d9dfd5;
+  --progress-fill: var(--primary);
+  --overlay: rgb(52 51 47 / 0.28);
+
+  /* Existing component aliases */
+  --paper: var(--surface);
+  --wash: var(--surface-subtle);
+  --ink: var(--text-primary);
+  --ink-soft: var(--text-secondary);
+  --muted: var(--text-muted);
+  --line: var(--border);
+  --accent: var(--primary);
+  --accent-soft: #96a991;
+  --accent-wash: var(--primary-soft);
+  --danger: var(--error);
+  --danger-wash: var(--error-soft);
+  --foreground: var(--text-primary);
 }
 
 @theme inline {
@@ -29,19 +61,18 @@
 }
 
 html {
+  background: var(--background);
   scroll-behavior: smooth;
 }
 
 body {
-  background:
-    radial-gradient(ellipse 120% 80% at 10% -10%, #e8ece8 0%, transparent 50%),
-    radial-gradient(ellipse 90% 60% at 100% 0%, #e4e8ef 0%, transparent 45%),
-    linear-gradient(180deg, #f6f7f9 0%, var(--paper) 40%, #eef0f3 100%);
+  background: var(--background);
   background-attachment: fixed;
-  color: var(--ink);
+  color: var(--text-primary);
   font-family: var(--font-body), system-ui, sans-serif;
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 .font-display {
@@ -52,6 +83,7 @@ body {
 
 .font-jp {
   font-family: var(--font-jp), "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-weight: 500;
 }
 
 .font-jp ruby {
@@ -81,25 +113,30 @@ body {
 
 .furi-hero rt {
   font-size: 0.32em;
-  color: var(--accent);
+  color: var(--text-muted);
 }
 
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 2px;
-  background: var(--ink);
-  color: var(--paper);
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  background: var(--primary);
+  color: var(--on-primary);
   padding: 0.95rem 1.25rem;
   font-size: 0.9375rem;
   font-weight: 500;
   letter-spacing: 0.01em;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--accent);
+  border-color: var(--primary-hover);
+  background: var(--primary-hover);
 }
 
 .btn-primary:active:not(:disabled) {
@@ -115,10 +152,10 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 2px;
-  border: 1px solid var(--line);
-  background: transparent;
-  color: var(--ink-soft);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
   padding: 0.85rem 1.25rem;
   font-size: 0.9375rem;
   transition: border-color 0.2s ease, background 0.2s ease;
@@ -126,7 +163,50 @@ body {
 
 .btn-ghost:hover {
   border-color: var(--accent-soft);
-  background: var(--wash);
+  background: var(--primary-soft);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+input,
+select,
+textarea {
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--text-primary);
+  caret-color: var(--primary);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
+code {
+  border-radius: 3px;
+  background: var(--surface-subtle);
+  color: var(--text-secondary);
+  padding: 0.08em 0.3em;
 }
 
 @keyframes fade-up {
@@ -155,6 +235,16 @@ body {
 }
 
 ::selection {
-  background: var(--accent-wash);
-  color: var(--ink);
+  background: var(--primary-soft);
+  color: var(--text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-fade-up {
+    animation: none;
+  }
 }

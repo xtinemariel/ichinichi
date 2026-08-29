@@ -78,7 +78,7 @@ function HomeScreenInner() {
       </header>
 
       {welcomeBack && (
-        <div className="animate-fade-up mt-8 border border-[var(--line)] bg-[var(--wash)] px-4 py-4 text-sm leading-relaxed text-[var(--ink-soft)]">
+        <div className="animate-fade-up mt-8 rounded-md border border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-4 text-sm leading-relaxed text-[var(--text-secondary)]">
           No worries about the missed days. Today we&apos;ll review what
           matters most, then continue your path.
         </div>
@@ -169,9 +169,9 @@ function HomeScreenInner() {
                 {categoryProgress.overall}%
               </p>
             </div>
-            <div className="h-1.5 w-32 overflow-hidden rounded-full bg-[var(--accent)]/20">
+            <div className="h-1.5 w-32 overflow-hidden rounded-full bg-[var(--progress-track)]">
               <div
-                className="h-full rounded-full bg-[var(--accent)] transition-all"
+                className="h-full rounded-full bg-[var(--progress-fill)] transition-all"
                 style={{ width: `${categoryProgress.overall}%` }}
               />
             </div>
@@ -208,9 +208,9 @@ function HomeScreenInner() {
                 {categoryProgress.overall}%
               </p>
             </div>
-            <div className="h-1.5 w-32 overflow-hidden rounded-full bg-[var(--accent)]/20">
+            <div className="h-1.5 w-32 overflow-hidden rounded-full bg-[var(--progress-track)]">
               <div
-                className="h-full rounded-full bg-[var(--accent)] transition-all"
+                className="h-full rounded-full bg-[var(--progress-fill)] transition-all"
                 style={{ width: `${categoryProgress.overall}%` }}
               />
             </div>

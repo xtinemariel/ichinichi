@@ -4,7 +4,9 @@ import { useMemo, useState } from "react";
 import type { Exercise } from "@/lib/types";
 import { checkAnswer } from "@/lessons/generator";
 import { FuriganaText } from "@/components/FuriganaText";
+import { JapaneseWithAudio } from "@/components/JapaneseWithAudio";
 import { resolveFuriganaReading } from "@/lib/readings";
+import { useApp } from "@/components/AppProvider";
 
 interface Props {
   exercise: Exercise;
@@ -19,6 +21,7 @@ export function ExerciseRenderer({
   onResult,
   allowRetry = false,
 }: Props) {
+  const { toggleSavedVocab, isVocabSaved } = useApp();
   const [selected, setSelected] = useState<string | null>(null);
   const [ordered, setOrdered] = useState<string[]>([]);
   const [remaining, setRemaining] = useState<string[]>(exercise.tokens ?? []);
@@ -55,34 +58,70 @@ export function ExerciseRenderer({
     exercise.type === "en_to_jp" ||
     exercise.type === "conjugation";
 
+  const vocabId =
+    exercise.contentType === "vocabulary" ? exercise.contentId : undefined;
+  const vocabSaved = vocabId ? isVocabSaved(vocabId) : false;
+
+  const showPromptAudio =
+    Boolean(exercise.promptJapanese) &&
+    !["jp_to_en", "kana_recognition", "kana_select", "reading"].includes(
+      exercise.type
+    );
+
   return (
     <div className="animate-fade-up space-y-6">
       {exercise.passage && (
         <div className="rounded-md border border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-5">
-          <p className="font-jp text-lg leading-relaxed text-[var(--ink)]">
-            <FuriganaText
-              text={exercise.passage}
-              reading={resolveFuriganaReading(
-                exercise.passage,
-                exercise.passageReading
-              )}
-            />
-          </p>
+          <JapaneseWithAudio
+            text={exercise.passage}
+            ariaLabel="Play pronunciation for reading passage"
+          >
+            <p className="font-jp text-lg leading-relaxed text-[var(--ink)]">
+              <FuriganaText
+                text={exercise.passage}
+                reading={resolveFuriganaReading(
+                  exercise.passage,
+                  exercise.passageReading
+                )}
+              />
+            </p>
+          </JapaneseWithAudio>
         </div>
       )}
 
       <div className="space-y-3">
         {exercise.promptJapanese && (
-          <p className="font-jp text-5xl sm:text-6xl tracking-wide text-[var(--ink)] text-center">
-            <FuriganaText
+          showPromptAudio ? (
+            <JapaneseWithAudio
               text={exercise.promptJapanese}
-              reading={resolveFuriganaReading(
-                exercise.promptJapanese,
-                exercise.promptReading
-              )}
-              className="furi-hero"
-            />
-          </p>
+              ariaLabel={`Play pronunciation for ${exercise.promptJapanese}`}
+              size="lg"
+              align="center"
+              className="justify-center"
+            >
+              <p className="font-jp text-5xl sm:text-6xl tracking-wide text-[var(--ink)] text-center">
+                <FuriganaText
+                  text={exercise.promptJapanese}
+                  reading={resolveFuriganaReading(
+                    exercise.promptJapanese,
+                    exercise.promptReading
+                  )}
+                  className="furi-hero"
+                />
+              </p>
+            </JapaneseWithAudio>
+          ) : (
+            <p className="font-jp text-5xl sm:text-6xl tracking-wide text-[var(--ink)] text-center">
+              <FuriganaText
+                text={exercise.promptJapanese}
+                reading={resolveFuriganaReading(
+                  exercise.promptJapanese,
+                  exercise.promptReading
+                )}
+                className="furi-hero"
+              />
+            </p>
+          )
         )}
         {exercise.promptReading &&
           !resolveFuriganaReading(
@@ -287,6 +326,19 @@ export function ExerciseRenderer({
             <p className="mt-2 text-[var(--muted)] leading-relaxed whitespace-pre-line">
               {exercise.explanation}
             </p>
+          )}
+          {vocabId && (
+            <button
+              type="button"
+              onClick={() => toggleSavedVocab(vocabId)}
+              className={`mt-3 text-sm ${
+                vocabSaved
+                  ? "text-[var(--accent-warm)]"
+                  : "text-[var(--muted)] hover:text-[var(--accent-warm)]"
+              }`}
+            >
+              {vocabSaved ? "★ Saved to My Vocabulary" : "☆ Save to My Vocabulary"}
+            </button>
           )}
           {mode === "practice" && allowRetry && !wasCorrect && (
             <p className="mt-2 text-xs text-[var(--muted)]">

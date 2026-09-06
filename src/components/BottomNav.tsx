@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 
 const links = [
   { href: "/", label: "Today" },
+  { href: "/vocabulary", label: "Words" },
+  { href: "/reference", label: "Ref" },
   { href: "/curriculum", label: "Path" },
   { href: "/progress", label: "Progress" },
 ];
@@ -14,7 +16,8 @@ export function BottomNav() {
   if (
     pathname.startsWith("/lesson") ||
     pathname.startsWith("/check") ||
-    pathname.startsWith("/auth")
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/vocabulary/practice")
   ) {
     return null;
   }

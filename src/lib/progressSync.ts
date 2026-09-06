@@ -32,6 +32,7 @@ function normalizeState(raw: unknown, userId: string): UserState {
     completedLessons: parsed.completedLessons ?? [],
     knowledgeChecks: parsed.knowledgeChecks ?? [],
     recentLessonConceptIds: parsed.recentLessonConceptIds ?? [],
+    savedVocabularyIds: parsed.savedVocabularyIds ?? [],
   });
 }
 

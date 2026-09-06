@@ -22,6 +22,7 @@ export function createDefaultUserState(): UserState {
     knowledgeChecks: [],
     recentLessonConceptIds: [],
     currentCurriculumIndex: 0,
+    savedVocabularyIds: [],
   };
 }
 
@@ -45,6 +46,7 @@ export function loadUserState(): UserState {
       completedLessons: parsed.completedLessons ?? [],
       knowledgeChecks: parsed.knowledgeChecks ?? [],
       recentLessonConceptIds: parsed.recentLessonConceptIds ?? [],
+      savedVocabularyIds: parsed.savedVocabularyIds ?? [],
     };
   } catch {
     return createDefaultUserState();

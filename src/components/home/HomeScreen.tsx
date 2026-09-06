@@ -143,19 +143,29 @@ function HomeScreenInner() {
       {isGuest ? (
         <section className="animate-fade-up mt-14 delay-2 border-t border-[var(--line)] pt-8">
           <p className="text-xs tracking-[0.2em] uppercase text-[var(--muted)]">
-            Guest mode
+            Account
           </p>
           <p className="mt-3 text-[var(--ink-soft)] leading-relaxed">
-            Your progress isn&apos;t being saved permanently.
+            You&apos;re in guest mode. Log in to restore saved progress, or
+            create an account to keep learning across devices.
           </p>
           {authConfigured && (
-            <button
-              type="button"
-              className="btn-primary mt-5 w-full"
-              onClick={() => router.push("/auth")}
-            >
-              Create Account
-            </button>
+            <div className="mt-5 space-y-3">
+              <button
+                type="button"
+                className="btn-primary w-full"
+                onClick={() => router.push("/auth?mode=login")}
+              >
+                Log in
+              </button>
+              <button
+                type="button"
+                className="btn-ghost w-full"
+                onClick={() => router.push("/auth")}
+              >
+                Create Account
+              </button>
+            </div>
           )}
         </section>
       ) : (

@@ -254,6 +254,37 @@ export interface UserState {
   knowledgeChecks: KnowledgeCheckRecord[];
   recentLessonConceptIds: string[];
   currentCurriculumIndex: number;
+  /** Learner-saved vocabulary for personal review */
+  savedVocabularyIds: string[];
+}
+
+export type VocabRating = "again" | "hard" | "good" | "easy";
+
+export type VocabStudyStatus = "new" | "learning" | "familiar" | "mastered";
+
+export type VocabCardKind =
+  | "flashcard"
+  | "recall_en"
+  | "recall_jp"
+  | "recall_kana"
+  | "context";
+
+export interface VocabStudyCard {
+  id: string;
+  vocabId: string;
+  kind: VocabCardKind;
+  exercise?: Exercise;
+}
+
+export interface VocabSessionSummary {
+  newCount: number;
+  reviewCount: number;
+  readyCount: number;
+  sessionSize: number;
+  totalWords: number;
+  masteredCount: number;
+  savedCount: number;
+  caughtUp: boolean;
 }
 
 /** Concept familiarity — separate from SRS mastery scores */

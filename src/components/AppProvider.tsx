@@ -19,6 +19,7 @@ import type {
   LessonResult,
   Recommendation,
   UserState,
+  VocabRating,
 } from "@/lib/types";
 import {
   clearActiveLesson,
@@ -49,6 +50,11 @@ import {
   postponeConcept,
   setConceptStatus,
 } from "@/engine/conceptStatus";
+import {
+  applyVocabRating,
+  isVocabularySaved,
+  toggleSavedVocabulary,
+} from "@/engine/vocabulary";
 import {
   generateLesson,
   generateKnowledgeCheck,
@@ -143,6 +149,13 @@ interface AppContextValue {
   reviewLater: (conceptId?: string) => void;
   setDailyGoal: (lessons: 1 | 2 | 3) => void;
   resetProgress: () => void;
+  recordVocabRating: (
+    vocabId: string,
+    rating: VocabRating,
+    isProduction?: boolean
+  ) => void;
+  toggleSavedVocab: (vocabId: string) => void;
+  isVocabSaved: (vocabId: string) => boolean;
   categoryProgress: ReturnType<typeof getCategoryProgress>;
   weakAreas: string[];
   strongAreas: string[];
@@ -551,6 +564,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
     sessionStorage.removeItem(CHECK_KEY);
   }, [user]);
 
+  const recordVocabRating = useCallback(
+    (vocabId: string, rating: VocabRating, isProduction = false) => {
+      setState((prev) => {
+        if (!prev) return prev;
+        const next = applyVocabRating(prev, vocabId, rating, isProduction);
+        saveUserState(next);
+        return next;
+      });
+    },
+    []
+  );
+
+  const toggleSavedVocab = useCallback((vocabId: string) => {
+    setState((prev) => {
+      if (!prev) return prev;
+      const next = toggleSavedVocabulary(prev, vocabId);
+      saveUserState(next);
+      return next;
+    });
+  }, []);
+
+  const isVocabSaved = useCallback(
+    (vocabId: string) => {
+      if (!state) return false;
+      return isVocabularySaved(state, vocabId);
+    },
+    [state]
+  );
+
   const value = useMemo<AppContextValue | null>(() => {
     if (!state) return null;
     return {
@@ -583,6 +625,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
       reviewLater,
       setDailyGoal,
       resetProgress,
+      recordVocabRating,
+      toggleSavedVocab,
+      isVocabSaved,
       categoryProgress: getCategoryProgress(state),
       weakAreas: getWeakAreas(state),
       strongAreas: getStrongAreas(state),
@@ -617,6 +662,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     reviewLater,
     setDailyGoal,
     resetProgress,
+    recordVocabRating,
+    toggleSavedVocab,
+    isVocabSaved,
   ]);
 
   if (!value) {

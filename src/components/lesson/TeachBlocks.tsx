@@ -2,6 +2,8 @@
 
 import type { TeachBlock } from "@/lib/types";
 import { FuriganaText } from "@/components/FuriganaText";
+import { JapaneseWithAudio } from "@/components/JapaneseWithAudio";
+import { JapaneseAudioButton } from "@/components/JapaneseAudioButton";
 
 export function TeachBlocks({ blocks }: { blocks: TeachBlock[] }) {
   return (
@@ -30,17 +32,25 @@ function TeachBlockView({ block }: { block: TeachBlock }) {
     case "hero_character":
       return (
         <div className="rounded-md border border-[var(--border)] bg-[var(--surface-subtle)] px-5 py-8 text-center">
-          <p className="font-jp text-7xl sm:text-8xl text-[var(--ink)] tracking-wide">
-            {block.furigana ? (
-              <FuriganaText
-                text={block.character}
-                reading={block.furigana}
-                className="furi-hero"
-              />
-            ) : (
-              block.character
-            )}
-          </p>
+          <JapaneseWithAudio
+            text={block.character}
+            ariaLabel={`Play pronunciation for ${block.character}`}
+            size="lg"
+            align="center"
+            className="justify-center"
+          >
+            <p className="font-jp text-7xl sm:text-8xl text-[var(--ink)] tracking-wide">
+              {block.furigana ? (
+                <FuriganaText
+                  text={block.character}
+                  reading={block.furigana}
+                  className="furi-hero"
+                />
+              ) : (
+                block.character
+              )}
+            </p>
+          </JapaneseWithAudio>
           <p className="mt-4 text-sm tracking-[0.2em] uppercase text-[var(--muted)]">
             {block.furigana ? "Meaning" : "Sound"}
           </p>
@@ -58,13 +68,19 @@ function TeachBlockView({ block }: { block: TeachBlock }) {
     case "example":
       return (
         <div className="border-l-2 border-[var(--accent)] pl-4 py-1 space-y-2">
-          <p className="font-jp text-2xl sm:text-3xl text-[var(--ink)] leading-snug">
-            <FuriganaText
-              text={block.japanese}
-              reading={block.reading}
-              highlight={block.highlight}
-            />
-          </p>
+          <JapaneseWithAudio
+            text={block.japanese}
+            ariaLabel={`Play pronunciation for ${block.japanese}`}
+            size="md"
+          >
+            <p className="font-jp text-2xl sm:text-3xl text-[var(--ink)] leading-snug">
+              <FuriganaText
+                text={block.japanese}
+                reading={block.reading}
+                highlight={block.highlight}
+              />
+            </p>
+          </JapaneseWithAudio>
           <p className="text-[var(--ink-soft)]">{block.english}</p>
           {block.breakdown && block.breakdown.length > 0 && (
             <div className="mt-2 space-y-1 rounded-md bg-[var(--surface-subtle)] px-3 py-2 text-sm">
@@ -90,16 +106,26 @@ function TeachBlockView({ block }: { block: TeachBlock }) {
           <div className="space-y-3">
             <div>
               <p className="text-xs text-[var(--muted)] mb-1">Before</p>
-              <p className="font-jp text-xl text-[var(--ink)]">
-                <FuriganaText text={block.before.japanese} reading={block.before.reading} />
-              </p>
+              <JapaneseWithAudio
+                text={block.before.japanese}
+                ariaLabel={`Play pronunciation for ${block.before.japanese}`}
+              >
+                <p className="font-jp text-xl text-[var(--ink)]">
+                  <FuriganaText text={block.before.japanese} reading={block.before.reading} />
+                </p>
+              </JapaneseWithAudio>
               <p className="text-sm text-[var(--ink-soft)]">{block.before.english}</p>
             </div>
             <div>
               <p className="text-xs text-[var(--muted)] mb-1">New</p>
-              <p className="font-jp text-xl text-[var(--ink)]">
-                <FuriganaText text={block.after.japanese} reading={block.after.reading} />
-              </p>
+              <JapaneseWithAudio
+                text={block.after.japanese}
+                ariaLabel={`Play pronunciation for ${block.after.japanese}`}
+              >
+                <p className="font-jp text-xl text-[var(--ink)]">
+                  <FuriganaText text={block.after.japanese} reading={block.after.reading} />
+                </p>
+              </JapaneseWithAudio>
               <p className="text-sm text-[var(--ink-soft)]">{block.after.english}</p>
             </div>
           </div>
@@ -128,8 +154,14 @@ function TeachBlockView({ block }: { block: TeachBlock }) {
                 <span className="text-[var(--muted)]">→</span>
                 <span className="font-jp text-lg text-[var(--accent)]">{row.to}</span>
                 {row.note && (
-                  <span className="ml-auto text-xs text-[var(--muted)]">{row.note}</span>
+                  <span className="text-xs text-[var(--muted)]">{row.note}</span>
                 )}
+                <JapaneseAudioButton
+                  text={row.to}
+                  ariaLabel={`Play pronunciation for ${row.to}`}
+                  size="sm"
+                  className="ml-auto shrink-0"
+                />
               </div>
             ))}
           </div>
@@ -144,24 +176,34 @@ function TeachBlockView({ block }: { block: TeachBlock }) {
               {block.exampleA.label && (
                 <p className="text-xs text-[var(--muted)] mb-1">{block.exampleA.label}</p>
               )}
-              <p className="font-jp text-lg text-[var(--ink)]">
-                <FuriganaText
-                  text={block.exampleA.japanese}
-                  reading={block.exampleA.reading}
-                />
-              </p>
+              <JapaneseWithAudio
+                text={block.exampleA.japanese}
+                ariaLabel={`Play pronunciation for ${block.exampleA.japanese}`}
+              >
+                <p className="font-jp text-lg text-[var(--ink)]">
+                  <FuriganaText
+                    text={block.exampleA.japanese}
+                    reading={block.exampleA.reading}
+                  />
+                </p>
+              </JapaneseWithAudio>
               <p className="mt-1 text-sm text-[var(--ink-soft)]">{block.exampleA.english}</p>
             </div>
             <div className="rounded-md bg-[var(--surface)] px-3 py-3">
               {block.exampleB.label && (
                 <p className="text-xs text-[var(--muted)] mb-1">{block.exampleB.label}</p>
               )}
-              <p className="font-jp text-lg text-[var(--ink)]">
-                <FuriganaText
-                  text={block.exampleB.japanese}
-                  reading={block.exampleB.reading}
-                />
-              </p>
+              <JapaneseWithAudio
+                text={block.exampleB.japanese}
+                ariaLabel={`Play pronunciation for ${block.exampleB.japanese}`}
+              >
+                <p className="font-jp text-lg text-[var(--ink)]">
+                  <FuriganaText
+                    text={block.exampleB.japanese}
+                    reading={block.exampleB.reading}
+                  />
+                </p>
+              </JapaneseWithAudio>
               <p className="mt-1 text-sm text-[var(--ink-soft)]">{block.exampleB.english}</p>
             </div>
           </div>
@@ -181,10 +223,15 @@ function TeachBlockView({ block }: { block: TeachBlock }) {
               <span className="shrink-0 font-medium text-[var(--accent)] w-6">
                 {line.speaker}
               </span>
-              <div>
-                <p className="font-jp text-lg text-[var(--ink)]">
-                  <FuriganaText text={line.japanese} reading={line.reading} />
-                </p>
+              <div className="min-w-0 flex-1">
+                <JapaneseWithAudio
+                  text={line.japanese}
+                  ariaLabel={`Play pronunciation for ${line.japanese}`}
+                >
+                  <p className="font-jp text-lg text-[var(--ink)]">
+                    <FuriganaText text={line.japanese} reading={line.reading} />
+                  </p>
+                </JapaneseWithAudio>
                 <p className="text-sm text-[var(--ink-soft)]">{line.english}</p>
               </div>
             </div>
@@ -272,12 +319,17 @@ function TeachBlockView({ block }: { block: TeachBlock }) {
     case "vocab_row":
       return (
         <div className="flex items-baseline justify-between gap-4 border-b border-[var(--line)] py-3">
-          <div>
+          <JapaneseWithAudio
+            text={block.japanese}
+            ariaLabel={`Play pronunciation for ${block.japanese}`}
+            size="md"
+            className="min-w-0 flex-1"
+          >
             <p className="font-jp text-2xl text-[var(--ink)]">
               <FuriganaText text={block.japanese} reading={block.reading} />
             </p>
-          </div>
-          <p className="text-sm text-[var(--ink-soft)] text-right">{block.english}</p>
+          </JapaneseWithAudio>
+          <p className="shrink-0 text-sm text-[var(--ink-soft)] text-right">{block.english}</p>
         </div>
       );
     default:

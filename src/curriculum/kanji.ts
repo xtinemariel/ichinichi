@@ -802,8 +802,8 @@ export const KANJI: KanjiItem[] = [
       { japanese: "木村", reading: "きむら", english: "Kimura (surname)" },
     ],
     category: "nature",
-    exampleSentence: "公園に大きい木があります。",
-    exampleSentenceReading: "こうえんにおおきいきがあります。",
+    exampleSentence: "公園に大きい木が あります。",
+    exampleSentenceReading: "こうえんに おおきい きが あります。",
     exampleTranslation: "There is a big tree in the park.",
   },
   {
@@ -1283,8 +1283,8 @@ export const KANJI: KanjiItem[] = [
       { japanese: "上げる", reading: "あげる", english: "to raise; to give" },
     ],
     category: "daily",
-    exampleSentence: "机の上に本があります。",
-    exampleSentenceReading: "つくえのうえにほんがあります。",
+    exampleSentence: "机の上に本が あります。",
+    exampleSentenceReading: "つくえの うえに ほんが あります。",
     exampleTranslation: "There is a book on the desk.",
   },
   {
@@ -1347,8 +1347,8 @@ export const KANJI: KanjiItem[] = [
       { japanese: "中学生", reading: "ちゅうがくせい", english: "junior high student" },
     ],
     category: "daily",
-    exampleSentence: "箱の中に何がありますか。",
-    exampleSentenceReading: "はこのなかになにがありますか。",
+    exampleSentence: "箱の中に何が ありますか。",
+    exampleSentenceReading: "はこの なかに なにが ありますか。",
     exampleTranslation: "What is inside the box?",
   },
 

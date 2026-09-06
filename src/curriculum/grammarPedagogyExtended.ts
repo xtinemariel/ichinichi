@@ -345,19 +345,130 @@ export const EXTENDED_PEDAGOGY: Record<string, GrammarPedagogy> = {
 
   "g-dictionary-form": {
     meaningConcept:
-      "The dictionary form is the plain verb form — how verbs appear in dictionaries: 食べる, 行く, する.",
+      "The dictionary form is the plain verb base — how verbs appear in dictionaries: 食べる, 行く, する.",
     whenToUse:
-      "Casual speech with friends. As the base for grammar patterns: たい, ことができる, て-form, と.",
+      "Casual speech with friends. As the base for ない, た, て, たい, ことができる, and more.",
     whenNotToUse:
       "Polite situations where ます is expected. Confusing the stem (食べ) with the full form (食べる).",
-    nuance: "Irregulars: する, 来る（くる）. Polite counterpart ends in ます.",
+    nuance:
+      "Three groups: る-verbs (食べる, 見る), う-verbs (書く, 飲む, 話す), irregulars (する, 来る). Traps: 帰る, 入る, 走る end in る but follow う-verb rules.",
     formation: [
-      { from: "食べます", to: "食べる", note: "polite → plain" },
-      { from: "行きます", to: "行く" },
-      { from: "します", to: "する" },
+      { from: "食べます", to: "食べる", note: "polite → plain · る-verb" },
+      { from: "書きます", to: "書く", note: "う-verb" },
+      { from: "します", to: "する", note: "irregular" },
+      { from: "来ます", to: "来る", note: "irregular" },
     ],
-    reviewGrammarIds: ["g-masu"],
+    richExamples: [
+      {
+        japanese: "ご飯を食べる。",
+        reading: "ごはんを たべる。",
+        english: "I eat a meal. (plain)",
+        highlight: "食べる",
+      },
+      {
+        japanese: "本を読む。",
+        reading: "ほんを よむ。",
+        english: "I read a book.",
+        highlight: "読む",
+      },
+      {
+        japanese: "友達に会う。",
+        reading: "ともだちに あう。",
+        english: "I meet a friend.",
+        highlight: "会う",
+      },
+    ],
+    mistakes: [
+      {
+        wrong: "帰て",
+        right: "帰る → 帰って",
+        note: "帰る looks like a る-verb but conjugates as an う-verb.",
+      },
+    ],
+    reviewGrammarIds: ["g-wo", "g-ni"],
     recall: { template: "毎日コーヒーを ________。", answer: "飲む", hint: "drink (plain)" },
+  },
+
+  "g-nai-form": {
+    discovery: {
+      before: {
+        japanese: "肉を食べる。",
+        reading: "にくを たべる。",
+        english: "I eat meat. (plain)",
+      },
+      after: {
+        japanese: "肉を食べない。",
+        reading: "にくを たべない。",
+        english: "I don't eat meat. (plain)",
+      },
+      question: "What changed?",
+      change: "食べる → 食べない",
+      insight:
+        "The dictionary form becomes plain negative by adding ない (る-verbs drop る first). This means \"don't\" or \"won't.\"",
+    },
+    meaningConcept: "ない-form is the plain negative — \"don't / won't do ~.\"",
+    whenToUse:
+      "Casual negative statements. Base for ないでください and other patterns. Add です for polite plain negative (食べないです).",
+    whenNotToUse:
+      "Formal polite negative in most situations — use ません instead.",
+    nuance:
+      "Same ending rules as て-form: る-verbs drop る + ない; う-verbs change the final syllable (飲む→飲まない, 行く→行かない); する→しない, 来る→来ない.",
+    formation: [
+      { from: "食べる", to: "食べない" },
+      { from: "飲む", to: "飲まない" },
+      { from: "行く", to: "行かない" },
+      { from: "する", to: "しない" },
+      { from: "来る", to: "来ない" },
+    ],
+    richExamples: [
+      {
+        japanese: "今日は行かない。",
+        reading: "きょうは いかない。",
+        english: "I won't go today.",
+        highlight: "行かない",
+      },
+      {
+        japanese: "コーヒーを飲まないです。",
+        reading: "コーヒーを のまないです。",
+        english: "I don't drink coffee.",
+        highlight: "飲まない",
+      },
+    ],
+    reviewGrammarIds: ["g-dictionary-form"],
+    recall: { template: "今日は行か ________。", answer: "ない", hint: "won't go (plain)" },
+  },
+
+  "g-ta-form": {
+    meaningConcept:
+      "た-form is the plain past — \"did / went / ate.\" It uses the same endings as て-form, with て→た and で→だ.",
+    whenToUse:
+      "Casual past statements: 昨日映画を見た. Past negative: 食べなかった (ない → なかった).",
+    whenNotToUse:
+      "Polite past — use ました / ませんでした. Do not attach た to the ます stem.",
+    nuance:
+      "Learn て-form first mentally, then swap the ending: 食べて→食べた, 飲んで→飲んだ, 行って→行った, した, 来た.",
+    formation: [
+      { from: "食べて", to: "食べた", note: "て → た" },
+      { from: "飲んで", to: "飲んだ", note: "で → だ" },
+      { from: "行って", to: "行った" },
+      { from: "食べない", to: "食べなかった", note: "past negative" },
+    ],
+    richExamples: [
+      {
+        japanese: "昨日映画を見た。",
+        reading: "きのう えいがを みた。",
+        english: "I watched a movie yesterday.",
+        highlight: "見た",
+      },
+      {
+        japanese: "朝ごはんを食べなかった。",
+        reading: "あさごはんを たべなかった。",
+        english: "I didn't eat breakfast.",
+        highlight: "食べなかった",
+      },
+    ],
+    reviewGrammarIds: ["g-nai-form"],
+    recall: { template: "昨日映画を見 ________。", answer: "た", hint: "watched (plain past)" },
   },
 
   "g-te-form": {
@@ -367,14 +478,16 @@ export const EXTENDED_PEDAGOGY: Record<string, GrammarPedagogy> = {
       "Before ください (please do), いる (ongoing), もいい (permission), or to link actions in sequence.",
     whenNotToUse:
       "As a polite sentence ending on its own in formal speech. Using ますて (wrong conjugation).",
-    nuance: "Each verb group has rules: 見る→見て, 書く→書いて, 飲む→飲んで. Irregulars: する→して, 来る→きて.",
+    nuance: "Each verb group has rules: 見る→見て, 書く→書いて, 飲む→飲んで. Irregulars: する→して, 来る→きて. Same endings become た-form: 食べて→食べた, 飲んで→飲んだ.",
     formation: [
-      { from: "食べる", to: "食べて" },
-      { from: "書く", to: "書いて" },
-      { from: "飲む", to: "飲んで" },
-      { from: "する", to: "して" },
+      { from: "食べる", to: "食べて", note: "る-verb" },
+      { from: "書く", to: "書いて", note: "う-verb · く→いて" },
+      { from: "飲む", to: "飲んで", note: "う-verb · む→んで" },
+      { from: "行く", to: "行って", note: "う-verb · く→って" },
+      { from: "する", to: "して", note: "irregular" },
+      { from: "来る", to: "来て", note: "irregular · きて in speech" },
     ],
-    reviewGrammarIds: ["g-dictionary-form"],
+    reviewGrammarIds: ["g-ta-form"],
     recall: { template: "ここで ________。", answer: "待って", hint: "wait (te-form)" },
   },
 
@@ -618,12 +731,53 @@ export const EXTENDED_PEDAGOGY: Record<string, GrammarPedagogy> = {
     whenNotToUse:
       "Telling someone they must not do something — that is てはいけません. This pattern only grants or asks for permission.",
     nuance:
-      "てもいいですか is polite enough for teachers, staff, and strangers. In casual speech も is often dropped (座っていいですか), but keep も when speaking politely.",
+      "てもいいですか is polite enough for teachers, staff, and strangers. Opposite: てはいけません (must not).",
+    contrasts: [
+      {
+        title: "てもいいです (may) vs てはいけません (must not)",
+        exampleA: {
+          japanese: "写真を撮ってもいいです。",
+          reading: "しゃしんを とってもいいです。",
+          english: "You may take photos.",
+          label: "Permission",
+        },
+        exampleB: {
+          japanese: "ここで写真を撮ってはいけません。",
+          reading: "ここで しゃしんを とってはいけません。",
+          english: "You must not take photos here.",
+          label: "Prohibition",
+        },
+        explanation:
+          "てもいいです allows an action. てはいけません forbids it — common for rules and signs.",
+        contrastGrammarId: "g-te-wa-ikenai",
+      },
+    ],
     reviewGrammarIds: ["g-te-form", "g-ka-questions"],
     recall: {
       template: "ここに座っても ________ ですか。",
       answer: "いい",
       hint: "may I sit",
+    },
+  },
+
+  "g-te-wa-ikenai": {
+    meaningConcept:
+      "て-form + はいけません states a prohibition — \"must not ~\" / \"not allowed to ~.\"",
+    whenToUse:
+      "Rules and instructions: ここで写真を撮ってはいけません, 廊下を走ってはいけません.",
+    whenNotToUse:
+      "Asking permission — use てもいいですか. Polite requests not to do something — use ないでください.",
+    nuance:
+      "Stronger than ないでください (please don't). Often seen on signs and in classrooms.",
+    formation: [
+      { from: "撮って", to: "撮ってはいけません", note: "must not take (photos)" },
+      { from: "走って", to: "走ってはいけません", note: "must not run" },
+    ],
+    reviewGrammarIds: ["g-te-mo-ii", "g-te-form"],
+    recall: {
+      template: "ここで走っては ________。",
+      answer: "いけません",
+      hint: "must not run",
     },
   },
 
@@ -651,7 +805,7 @@ export const EXTENDED_PEDAGOGY: Record<string, GrammarPedagogy> = {
         contrastGrammarId: "g-te-kudasai",
       },
     ],
-    reviewGrammarIds: ["g-te-kudasai", "g-dictionary-form"],
+    reviewGrammarIds: ["g-te-kudasai", "g-nai-form"],
     recall: {
       template: "忘れないで ________。",
       answer: "ください",
@@ -711,7 +865,7 @@ export const EXTENDED_PEDAGOGY: Record<string, GrammarPedagogy> = {
   "g-kara-reason": {
     meaningConcept: "から after a clause gives a reason — \"because ~.\"",
     whenToUse:
-      "Explaining why: 時間がありませんから、タクシーで行きます (Because I do not have time, I will go by taxi).",
+      "Explaining why: 時間が ありませんから、タクシーで行きます (Because I do not have time, I will go by taxi).",
     whenNotToUse:
       "Confusing with starting-point から (九時から = from 9 o'clock). から at end of noun alone.",
     nuance: "Starting-point から and reason から look the same — context and clause structure tell them apart.",
@@ -719,7 +873,7 @@ export const EXTENDED_PEDAGOGY: Record<string, GrammarPedagogy> = {
       {
         title: "から (reason) vs から (from)",
         exampleA: {
-          japanese: "時間がありませんから、タクシーで行きます。",
+          japanese: "時間が ありませんから、タクシーで行きます。",
           reading: "じかんが ありませんから、タクシーで いきます。",
           english: "Because I don't have time, I'll go by taxi.",
           label: "Reason → clause + から",
@@ -736,7 +890,7 @@ export const EXTENDED_PEDAGOGY: Record<string, GrammarPedagogy> = {
     ],
     reviewGrammarIds: ["g-kara", "g-masu"],
     recall: {
-      template: "時間がありません ________、行きます。",
+      template: "時間が ありません ________、行きます。",
       answer: "から",
       hint: "because",
     },
@@ -745,13 +899,13 @@ export const EXTENDED_PEDAGOGY: Record<string, GrammarPedagogy> = {
   "g-kedo": {
     meaningConcept: "けど (けれど) means \"but\" or \"although\" — introduces a contrast or softens a statement.",
     whenToUse:
-      "Contrasting ideas: 行きたいけど、時間がありません (I want to go, but I don't have time).",
+      "Contrasting ideas: 行きたいけど、時間が ありません (I want to go, but I don't have time).",
     whenNotToUse:
       "At the very start of a sentence like English \"But, ...\" in formal writing — attach to the first clause.",
     nuance: "Casual: けど. More polite: けれども. Can soften refusals or requests.",
     reviewGrammarIds: ["g-masu"],
     recall: {
-      template: "行きたい ________、時間がありません。",
+      template: "行きたい ________、時間が ありません。",
       answer: "けど",
       hint: "but",
     },
@@ -775,7 +929,7 @@ export const EXTENDED_PEDAGOGY: Record<string, GrammarPedagogy> = {
           label: "Objective → ので",
         },
         exampleB: {
-          japanese: "時間がありませんから、タクシーで行きます。",
+          japanese: "時間が ありませんから、タクシーで行きます。",
           reading: "じかんが ありませんから、タクシーで いきます。",
           english: "Because I don't have time, I'll go by taxi.",
           label: "Direct → から",

@@ -216,7 +216,7 @@ const PEDAGOGY: Record<string, GrammarPedagogy> = {
         note: "ます is already polite — never add です after it.",
       },
     ],
-    reviewGrammarIds: ["g-word-order", "g-wo"],
+    reviewGrammarIds: ["g-dictionary-form", "g-wo"],
     recall: { template: "コーヒーを ________。", answer: "飲みます", hint: "drink (polite)" },
   },
 
@@ -455,7 +455,7 @@ const PEDAGOGY: Record<string, GrammarPedagogy> = {
         note: "The thing you like takes が, not を.",
       },
       {
-        japanese: "時間がありません。",
+        japanese: "時間が ありません。",
         reading: "じかんが ありません。",
         english: "I don't have time.",
         highlight: "が",
@@ -596,7 +596,7 @@ const PEDAGOGY: Record<string, GrammarPedagogy> = {
   "g-arimasu-imasu": {
     discovery: {
       before: {
-        japanese: "本があります。",
+        japanese: "本が あります。",
         reading: "ほんが あります。",
         english: "There is a book.",
       },
@@ -613,13 +613,13 @@ const PEDAGOGY: Record<string, GrammarPedagogy> = {
     meaningConcept:
       "あります/います express existence or possession. The thing that exists takes が.",
     formation: [
-      { from: "本 + ある", to: "本があります", note: "things" },
+      { from: "本 + ある", to: "本が あります", note: "things" },
       { from: "人 + いる", to: "人がいます", note: "people/animals" },
     ],
     richExamples: [
       {
-        japanese: "机の上に本があります。",
-        reading: "つくえのうえに ほんが あります。",
+        japanese: "机の上に本が あります。",
+        reading: "つくえの うえに ほんが あります。",
         english: "There is a book on the desk.",
         highlight: "あります",
       },
@@ -633,7 +633,7 @@ const PEDAGOGY: Record<string, GrammarPedagogy> = {
     mistakes: [
       {
         wrong: "本がいます",
-        right: "本があります",
+        right: "本が あります",
         note: "Books are not alive — use あります.",
       },
       {
@@ -818,9 +818,80 @@ const PEDAGOGY: Record<string, GrammarPedagogy> = {
         explanation: "ましょう invites others. たい describes your own want.",
         contrastGrammarId: "g-tai",
       },
+      {
+        title: "ましょう (let's) vs ませんか (would you like to)",
+        exampleA: {
+          japanese: "一緒に行きましょう。",
+          reading: "いっしょに いきましょう。",
+          english: "Let's go together.",
+          label: "Speaker-led suggestion",
+        },
+        exampleB: {
+          japanese: "一緒に行きませんか。",
+          reading: "いっしょに いきませんか。",
+          english: "Won't you go together? / Shall we go?",
+          label: "Softer invitation",
+        },
+        explanation:
+          "ましょう states \"let's.\" ませんか invites the listener more softly.",
+        contrastGrammarId: "g-masenka",
+      },
     ],
     reviewGrammarIds: ["g-masu"],
     recall: { template: "一緒に食べ ________。", answer: "ましょう", hint: "let's eat" },
+  },
+
+  "g-masenka": {
+    meaningConcept:
+      "ませんか is a polite invitation — \"Won't you ~?\" / \"Would you like to ~?\"",
+    whenToUse:
+      "Inviting someone to do something together: 映画を見ませんか, お茶を飲みませんか.",
+    whenNotToUse:
+      "Plain negative statements — 行きません means \"I won't go,\" not an invitation.",
+    formation: [
+      { from: "行きます", to: "行きませんか", note: "invitation" },
+      { from: "見ます", to: "見ませんか" },
+      { from: "飲みます", to: "飲みませんか" },
+    ],
+    richExamples: [
+      {
+        japanese: "映画を見ませんか。",
+        reading: "えいがを みませんか。",
+        english: "Would you like to watch a movie?",
+        highlight: "見ませんか",
+      },
+      {
+        japanese: "一緒に行きませんか。",
+        reading: "いっしょに いきませんか。",
+        english: "Won't you go together?",
+        highlight: "行きませんか",
+      },
+    ],
+    contrasts: [
+      {
+        title: "〜ません vs 〜ませんか",
+        exampleA: {
+          japanese: "行きません。",
+          english: "I won't go.",
+          label: "Negative statement",
+        },
+        exampleB: {
+          japanese: "一緒に行きませんか。",
+          reading: "いっしょに いきませんか。",
+          english: "Won't you go together?",
+          label: "Invitation",
+        },
+        explanation:
+          "Same ending shape — か at the end turns it into a polite invitation.",
+        contrastGrammarId: "g-masen",
+      },
+    ],
+    reviewGrammarIds: ["g-masen", "g-mashou"],
+    recall: {
+      template: "映画を見 ________ か。",
+      answer: "ません",
+      hint: "would you like to watch",
+    },
   },
 
   "g-e": {
@@ -921,7 +992,9 @@ const FUNCTION_LABELS: Record<string, string> = {
   "g-masen": "Politely says you do not do something",
   "g-mashita": "Politely says something already happened",
   "g-masen-deshita": "Politely denies that something happened before",
-  "g-dictionary-form": "Gives the plain casual form used as a base",
+  "g-dictionary-form": "Gives the plain base form and verb group rules",
+  "g-nai-form": "States that something is not done, in plain form",
+  "g-ta-form": "States that something already happened, in plain form",
   "g-te-form": "Connects verbs so other patterns can attach",
   "g-te-kudasai": "Politely asks someone to do something",
   "g-te-iru": "Describes an action in progress right now",
@@ -939,7 +1012,9 @@ const FUNCTION_LABELS: Record<string, string> = {
   "g-counters": "Counts objects using the right counting word",
   "g-tai": "Says what the speaker wants to do",
   "g-mashou": "Suggests doing something together",
+  "g-masenka": "Politely invites someone to do something",
   "g-te-mo-ii": "Gives or asks for permission",
+  "g-te-wa-ikenai": "States that something is not allowed",
   "g-naide-kudasai": "Politely asks someone to refrain from acting",
   "g-koto-ga-dekiru": "Says that someone is able to do something",
   "g-yori-hou-ga": "Compares two things and says which is more",

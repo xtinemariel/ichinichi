@@ -28,7 +28,18 @@ export function SaveProgressPrompt({ onLater }: Props) {
         >
           Create Account
         </button>
-        <button type="button" className="btn-ghost w-full" onClick={onLater}>
+        <button
+          type="button"
+          className="btn-ghost w-full"
+          onClick={() => router.push("/auth?mode=login")}
+        >
+          Already have an account? Log in
+        </button>
+        <button
+          type="button"
+          className="w-full py-3 text-sm text-[var(--muted)] hover:text-[var(--ink-soft)]"
+          onClick={onLater}
+        >
           Maybe Later
         </button>
       </div>

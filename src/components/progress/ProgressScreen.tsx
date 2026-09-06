@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { formatMinutes } from "@/lib/dates";
 
 export function ProgressScreen() {
+  const router = useRouter();
   const [confirmingReset, setConfirmingReset] = useState(false);
   const {
     state,
@@ -15,6 +17,10 @@ export function ProgressScreen() {
     setDailyGoal,
     resetProgress,
     lessonsToday,
+    isGuest,
+    user,
+    authConfigured,
+    signOut,
   } = useApp();
 
   return (
@@ -121,6 +127,51 @@ export function ProgressScreen() {
           ))}
         </div>
       </section>
+
+      {authConfigured && (
+        <section className="mt-12 border-t border-[var(--line)] pt-8">
+          <p className="text-xs tracking-[0.2em] uppercase text-[var(--muted)]">
+            Account
+          </p>
+          {isGuest ? (
+            <>
+              <p className="mt-3 text-sm text-[var(--ink-soft)] leading-relaxed">
+                Log in to restore progress from another device, or create an
+                account to save permanently.
+              </p>
+              <div className="mt-5 space-y-3">
+                <button
+                  type="button"
+                  className="btn-primary w-full"
+                  onClick={() => router.push("/auth?mode=login")}
+                >
+                  Log in
+                </button>
+                <button
+                  type="button"
+                  className="btn-ghost w-full"
+                  onClick={() => router.push("/auth")}
+                >
+                  Create Account
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="mt-3 text-sm text-[var(--ink-soft)]">
+                Signed in as {user?.email}
+              </p>
+              <button
+                type="button"
+                className="mt-4 text-sm text-[var(--muted)] hover:text-[var(--ink-soft)]"
+                onClick={() => void signOut()}
+              >
+                Log out
+              </button>
+            </>
+          )}
+        </section>
+      )}
 
       <button
         type="button"

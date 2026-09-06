@@ -626,7 +626,7 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
         english: "I want to go to Japan and China (for example).",
       },
       {
-        japanese: "机の上に本やペンがあります。",
+        japanese: "机の上に本やペンが あります。",
         reading: "つくえのうえに ほんや ペンが あります。",
         english: "There are books and pens (etc.) on the desk.",
       },
@@ -674,7 +674,7 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
       "Adding です after ます (行きますです).",
       "Using dictionary form in polite conversation by accident.",
     ],
-    prerequisiteIds: ["g-word-order"],
+    prerequisiteIds: ["g-dictionary-form"],
   },
   {
     id: "g-masen",
@@ -774,20 +774,20 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
   },
   {
     id: "g-dictionary-form",
-    title: "Dictionary form",
+    title: "Dictionary form & verb groups",
     explanation:
-      "The dictionary form (plain non-past) is how verbs appear in dictionaries: 食べる, 行く, する. It is used in casual speech and as the base for many grammar patterns (たい, ことができる, と, etc.).",
+      "The dictionary form (plain non-past) is how verbs appear in dictionaries: 食べる, 行く, する. It is the base for most conjugations. Japanese verbs fall into three groups: る-verbs (食べる, 見る), う-verbs (書く, 飲む, 話す), and two irregulars (する, 来る). Watch for る-ending traps like 帰る, 入る, and 走る — they look like る-verbs but conjugate as う-verbs.",
     pattern: "[Verb dictionary form]",
     examples: [
       {
         japanese: "食べる",
         reading: "たべる",
-        english: "to eat (plain)",
+        english: "to eat (plain · る-verb)",
       },
       {
-        japanese: "行く",
-        reading: "いく",
-        english: "to go (plain)",
+        japanese: "書く",
+        reading: "かく",
+        english: "to write (plain · う-verb)",
       },
       {
         japanese: "毎日コーヒーを飲む。",
@@ -797,13 +797,82 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
     ],
     notes: [
       "Polite counterpart ends in ます.",
-      "Irregulars: する, 来る（くる）.",
+      "Irregulars: する → します, 来る → 来ます.",
+      "帰る・入る・走る end in る but follow う-verb rules.",
     ],
     commonMistakes: [
+      "Assuming every る-ending verb is a る-verb (帰る → 帰て ✗).",
       "Using dictionary form in formal situations where ます is expected.",
       "Confusing stem (食べ) with full dictionary form (食べる).",
     ],
-    prerequisiteIds: ["g-masu"],
+    prerequisiteIds: ["g-word-order"],
+  },
+  {
+    id: "g-nai-form",
+    title: "Plain negative (ない-form)",
+    explanation:
+      "The ない-form is the plain negative: “don't / won't.” る-verbs drop る and add ない; う-verbs change the final u-sound syllable (飲む → 飲まない, 行く → 行かない). Irregulars: する → しない, 来る → 来ない. Add です for a polite but still plain-leaning negative (食べないです).",
+    pattern: "[Verb ない-form]",
+    examples: [
+      {
+        japanese: "肉を食べない。",
+        reading: "にくを たべない。",
+        english: "I don't eat meat. (plain)",
+      },
+      {
+        japanese: "今日は行かない。",
+        reading: "きょうは いかない。",
+        english: "I won't go today. (plain)",
+      },
+      {
+        japanese: "コーヒーを飲まないです。",
+        reading: "コーヒーを のまないです。",
+        english: "I don't drink coffee.",
+      },
+    ],
+    notes: [
+      "Base for ないでください and many grammar patterns.",
+      "Same group rules as て-form and た-form endings.",
+    ],
+    commonMistakes: [
+      "Using ません when the sentence needs plain negative (ない).",
+      "る-verb mistake: 食べるない instead of 食べない.",
+      "う-verb mistake: 飲むない instead of 飲まない.",
+    ],
+    prerequisiteIds: ["g-dictionary-form"],
+  },
+  {
+    id: "g-ta-form",
+    title: "Plain past (た-form)",
+    explanation:
+      "The た-form is the plain past: “did / went / ate.” Formation follows the same endings as て-form — only the final vowel changes (て → た, で → だ). Example: 食べて → 食べた, 飲んで → 飲んだ, 行って → 行った. Past negative: 食べなかった, 行かなかった (ない-form + かった).",
+    pattern: "[Verb た-form] / [Verb なかった]",
+    examples: [
+      {
+        japanese: "昨日映画を見た。",
+        reading: "きのう えいがを みた。",
+        english: "I watched a movie yesterday. (plain)",
+      },
+      {
+        japanese: "朝ごはんを食べなかった。",
+        reading: "あさごはんを たべなかった。",
+        english: "I didn't eat breakfast. (plain)",
+      },
+      {
+        japanese: "友達に会った。",
+        reading: "ともだちに あった。",
+        english: "I met a friend.",
+      },
+    ],
+    notes: [
+      "If you know the て-form, swap て→た or で→だ for the past.",
+      "Polite past remains ました / ませんでした.",
+    ],
+    commonMistakes: [
+      "Using た on the ます stem (食べますた).",
+      "Forgetting う-verb sound changes (行く → 行った, not 行くた).",
+    ],
+    prerequisiteIds: ["g-nai-form"],
   },
   {
     id: "g-te-form",
@@ -836,7 +905,7 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
       "Guessing て-forms without learning group rules (書く → 書て).",
       "Using ますて.",
     ],
-    prerequisiteIds: ["g-dictionary-form"],
+    prerequisiteIds: ["g-ta-form"],
   },
   {
     id: "g-te-kudasai",
@@ -1140,8 +1209,8 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
     pattern: "[Thing] が あります / [Person/Animal] が います",
     examples: [
       {
-        japanese: "机の上に本があります。",
-        reading: "つくえのうえに ほんが あります。",
+        japanese: "机の上に本が あります。",
+        reading: "つくえの うえに ほんが あります。",
         english: "There is a book on the desk.",
       },
       {
@@ -1150,7 +1219,7 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
         english: "There are children in the park.",
       },
       {
-        japanese: "時間がありません。",
+        japanese: "時間が ありません。",
         reading: "じかんが ありません。",
         english: "I don’t have time.",
       },
@@ -1373,6 +1442,39 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
     prerequisiteIds: ["g-masu"],
   },
   {
+    id: "g-masenka",
+    title: "ませんか (won't you / shall we)",
+    explanation:
+      "Verb stem + ませんか is a polite invitation: “Won't you ~?” / “Would you like to ~?” / “Shall we ~?” It sounds softer than a direct ましょう. Example: 映画を見ませんか → “Would you like to watch a movie?”",
+    pattern: "[Verb stem] ませんか",
+    examples: [
+      {
+        japanese: "一緒に行きませんか。",
+        reading: "いっしょに いきませんか。",
+        english: "Won't you go together? / Shall we go?",
+      },
+      {
+        japanese: "映画を見ませんか。",
+        reading: "えいがを みませんか。",
+        english: "Would you like to watch a movie?",
+      },
+      {
+        japanese: "お茶を飲みませんか。",
+        reading: "おちゃを のみませんか。",
+        english: "Would you like some tea?",
+      },
+    ],
+    notes: [
+      "Same shape as ません + か, but the meaning is an invitation, not “I won't.”",
+      "ましょう = let's (speaker-led). ませんか = softer invite to the listener.",
+    ],
+    commonMistakes: [
+      "Reading 行きませんか as “I won't go” without context.",
+      "Using ません alone when inviting someone (行きません → statement, not invite).",
+    ],
+    prerequisiteIds: ["g-masen", "g-mashou"],
+  },
+  {
     id: "g-te-mo-ii",
     title: "てもいい (permission)",
     explanation:
@@ -1405,6 +1507,39 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
     prerequisiteIds: ["g-te-form", "g-ka-questions"],
   },
   {
+    id: "g-te-wa-ikenai",
+    title: "てはいけません (must not)",
+    explanation:
+      "て-form + はいけません states a rule or prohibition: “must not ~” / “not allowed to ~.” It is stronger than a request — it states what is forbidden. Question form: てはいけませんか (“Is it not allowed?”). Casual: てはいけない.",
+    pattern: "[Verb て-form] はいけません",
+    examples: [
+      {
+        japanese: "ここで写真を撮ってはいけません。",
+        reading: "ここで しゃしんを とってはいけません。",
+        english: "You must not take photos here.",
+      },
+      {
+        japanese: "廊下を走ってはいけません。",
+        reading: "ろうかを はしってはいけません。",
+        english: "You must not run in the hallway.",
+      },
+      {
+        japanese: "宿題を忘れてはいけません。",
+        reading: "しゅくだいを わすれてはいけません。",
+        english: "You must not forget your homework.",
+      },
+    ],
+    notes: [
+      "Opposite of てもいいです (permission).",
+      "Rules, signs, and classroom instructions often use this pattern.",
+    ],
+    commonMistakes: [
+      "Using てもいい for a prohibition.",
+      "Using dictionary form + はいけません (食べるはいけません).",
+    ],
+    prerequisiteIds: ["g-te-mo-ii"],
+  },
+  {
     id: "g-naide-kudasai",
     title: "ないでください (please don’t)",
     explanation:
@@ -1435,7 +1570,7 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
       "Using ませんでください.",
       "Using てください with a negative meaning without ないで.",
     ],
-    prerequisiteIds: ["g-te-kudasai", "g-dictionary-form"],
+    prerequisiteIds: ["g-te-kudasai", "g-nai-form"],
   },
   {
     id: "g-koto-ga-dekiru",
@@ -1521,7 +1656,7 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
         english: "Because I’m sick, I’ll take today off.",
       },
       {
-        japanese: "時間がありませんから、タクシーで行きます。",
+        japanese: "時間が ありませんから、タクシーで行きます。",
         reading: "じかんが ありませんから、タクシーで いきます。",
         english: "Because I don’t have time, I’ll go by taxi.",
       },
@@ -1549,7 +1684,7 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
         english: "It’s expensive, but I’ll buy it.",
       },
       {
-        japanese: "行きたいですが、時間がありません。",
+        japanese: "行きたいですが、時間が ありません。",
         reading: "いきたいですが、じかんが ありません。",
         english: "I want to go, but I don’t have time.",
       },
@@ -1620,8 +1755,8 @@ export const GRAMMAR_POINTS: GrammarPoint[] = [
         english: "When spring comes, it gets warm.",
       },
       {
-        japanese: "この道をまっすぐ行くと、駅があります。",
-        reading: "このみちを まっすぐ いくと、えきが あります。",
+        japanese: "この道をまっすぐ行くと、駅が あります。",
+        reading: "この みちを まっすぐ いくと、えきが あります。",
         english: "If you go straight on this street, there’s a station.",
       },
     ],

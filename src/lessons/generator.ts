@@ -475,6 +475,70 @@ export function conceptExercises(
     );
   }
 
+  if (concept.id === "c-plain-forms") {
+    exercises.push(
+      makeConjugationSelect(
+        "食べる → plain negative?",
+        "食べない",
+        ["食べない", "食べません", "食べなかった", "食べた"],
+        "g-nai-form",
+        "る-verbs drop る and add ない.",
+        quiz
+      )
+    );
+    exercises.push(
+      makeConjugationSelect(
+        "飲む → plain past?",
+        "飲んだ",
+        ["飲んだ", "飲んで", "飲まない", "飲みました"],
+        "g-ta-form",
+        "Same ending as て-form: 飲んで → 飲んだ.",
+        quiz
+      )
+    );
+    exercises.push(
+      makeConjugationSelect(
+        'How do you say "I didn\'t eat" in plain form?',
+        "食べなかった",
+        ["食べなかった", "食べない", "食べませんでした", "食べた"],
+        "g-ta-form",
+        "Past negative: ない → なかった.",
+        quiz
+      )
+    );
+  }
+
+  if (concept.id === "c-permission") {
+    exercises.push(
+      makeConjugationSelect(
+        'Which means "You must not run here"?',
+        "ここで走ってはいけません",
+        [
+          "ここで走ってはいけません",
+          "ここで走ってもいいです",
+          "ここで走らないでください",
+          "ここで走りません",
+        ],
+        "g-te-wa-ikenai",
+        "てはいけません = must not / not allowed.",
+        quiz
+      )
+    );
+  }
+
+  if (concept.id === "c-mashou") {
+    exercises.push(
+      makeConjugationSelect(
+        'Which is a polite invitation?',
+        "映画を見ませんか",
+        ["映画を見ませんか", "映画を見ません", "映画を見ましょう", "映画を見たいです"],
+        "g-masenka",
+        "ませんか invites someone — it is not a plain negative statement.",
+        quiz
+      )
+    );
+  }
+
   if (concept.id === "c-desu") {
     exercises.push(
       makeConjugationSelect(
@@ -730,6 +794,250 @@ function buildGrammarTeachBlocks(concept: Concept): {
     return { learn, examples };
   }
 
+  if (concept.id === "c-dictionary-form") {
+    const learn: TeachBlock[] = [
+      { kind: "heading", text: "Dictionary Form & Verb Groups" },
+      {
+        kind: "paragraph",
+        text: "Every verb has a dictionary form — the plain base you see in dictionaries: 食べる, 行く, する. Most conjugations start here.",
+      },
+      { kind: "pattern", label: "Dictionary form", value: "食べる · 飲む · 行く · する · 来る" },
+      {
+        kind: "table",
+        headers: ["Group", "Examples", "How to spot it"],
+        rows: [
+          ["る-verbs", "食べる · 見る · 起きる", "る-ends, penultimate vowel is い or え"],
+          ["う-verbs", "書く · 飲む · 話す · 読む", "Ends in う-row kana (not る, or る with other vowel)"],
+          ["Irregular", "する · 来る", "Only these two — memorize them"],
+        ],
+      },
+      {
+        kind: "callout",
+        variant: "tip",
+        title: "る-ending traps",
+        body: "帰る · 入る · 走る end in る but conjugate as う-verbs — not る-verbs.",
+      },
+      {
+        kind: "callout",
+        variant: "remember",
+        title: "Why this matters",
+        body: "Group rules drive ます, ない, た, and て forms. Learn the group once — every pattern follows.",
+      },
+    ];
+    const examples: TeachBlock[] = [
+      { kind: "heading", text: "Verbs in simple sentences" },
+      {
+        kind: "example",
+        japanese: "ご飯を食べる。",
+        reading: "ごはんを たべる。",
+        english: "I eat a meal. (plain · る-verb)",
+        highlight: "食べる",
+      },
+      {
+        kind: "example",
+        japanese: "本を読む。",
+        reading: "ほんを よむ。",
+        english: "I read a book. (う-verb)",
+        highlight: "読む",
+      },
+      {
+        kind: "example",
+        japanese: "友達に会う。",
+        reading: "ともだちに あう。",
+        english: "I meet a friend.",
+        highlight: "会う",
+      },
+      {
+        kind: "example",
+        japanese: "うちへ帰る。",
+        reading: "うちへ かえる。",
+        english: "I go home. (る-trap — う-verb)",
+        highlight: "帰る",
+      },
+    ];
+    return { learn, examples };
+  }
+
+  if (concept.id === "c-plain-forms") {
+    const learn: TeachBlock[] = [
+      { kind: "heading", text: "Plain Negative & Past" },
+      {
+        kind: "paragraph",
+        text: "Polite forms use ます. Plain forms are the casual base — and they unlock patterns like ないでください and casual speech.",
+      },
+      { kind: "heading", text: "ない-form — plain negative" },
+      { kind: "pattern", label: "Plain negative", value: "[verb] ない → 食べない · 飲まない · 行かない" },
+      {
+        kind: "table",
+        headers: ["Dictionary", "ない-form", "Meaning"],
+        rows: [
+          ["食べる", "食べない", "don't / won't eat"],
+          ["飲む", "飲まない", "don't drink"],
+          ["行く", "行かない", "won't go"],
+          ["する", "しない", "won't do"],
+          ["来る", "来ない", "won't come"],
+        ],
+      },
+      { kind: "heading", text: "た-form — plain past" },
+      {
+        kind: "paragraph",
+        text: "The た-form uses the same endings as て-form — only the final vowel changes: て→た, で→だ.",
+      },
+      {
+        kind: "table",
+        headers: ["て-form", "た-form", "Meaning"],
+        rows: [
+          ["食べて", "食べた", "ate"],
+          ["飲んで", "飲んだ", "drank"],
+          ["行って", "行った", "went"],
+          ["して", "した", "did"],
+          ["来て", "来た", "came"],
+        ],
+      },
+      {
+        kind: "callout",
+        variant: "remember",
+        title: "Past negative",
+        body: "ない → なかった: 食べなかった (didn't eat) · 行かなかった (didn't go). Same group rules as ない-form.",
+      },
+    ];
+    const examples: TeachBlock[] = [
+      { kind: "heading", text: "In full sentences" },
+      {
+        kind: "example",
+        japanese: "肉を食べない。",
+        reading: "にくを たべない。",
+        english: "I don't eat meat. (plain)",
+        highlight: "食べない",
+      },
+      {
+        kind: "example",
+        japanese: "昨日映画を見た。",
+        reading: "きのう えいがを みた。",
+        english: "I watched a movie yesterday.",
+        highlight: "見た",
+      },
+      {
+        kind: "example",
+        japanese: "朝ごはんを食べなかった。",
+        reading: "あさごはんを たべなかった。",
+        english: "I didn't eat breakfast.",
+        highlight: "食べなかった",
+      },
+      {
+        kind: "callout",
+        variant: "tip",
+        title: "Polite vs plain",
+        body: "Polite: 食べません / 食べました. Plain: 食べない / 食べた. Same meaning — different register.",
+      },
+    ];
+    return { learn, examples };
+  }
+
+  if (concept.id === "c-permission") {
+    const learn: TeachBlock[] = [
+      { kind: "heading", text: "Permission & Prohibition" },
+      {
+        kind: "paragraph",
+        text: "て-form connects to two opposite patterns: てもいいです (may / allowed) and てはいけません (must not).",
+      },
+      { kind: "pattern", label: "Permission", value: "[verb て-form] もいいです / もいいですか" },
+      { kind: "pattern", label: "Prohibition", value: "[verb て-form] はいけません" },
+      {
+        kind: "table",
+        headers: ["Pattern", "Example", "Meaning"],
+        rows: [
+          ["てもいいです", "写真を撮ってもいいです", "You may take photos"],
+          ["てもいいですか", "ここに座ってもいいですか", "May I sit here?"],
+          ["てはいけません", "ここで走ってはいけません", "You must not run here"],
+        ],
+      },
+      {
+        kind: "callout",
+        variant: "mistake",
+        title: "Don't mix them up",
+        body: "❌ てもいい for a rule/sign → ✅ てはいけません\n❌ 食べますてもいい → ✅ 食べてもいい",
+      },
+    ];
+    const examples: TeachBlock[] = [
+      { kind: "heading", text: "Real situations" },
+      {
+        kind: "example",
+        japanese: "窓を開けてもいいですよ。",
+        reading: "まどを あけてもいいですよ。",
+        english: "It's okay to open the window.",
+        highlight: "てもいい",
+      },
+      {
+        kind: "example",
+        japanese: "ここで写真を撮ってはいけません。",
+        reading: "ここで しゃしんを とってはいけません。",
+        english: "You must not take photos here.",
+        highlight: "てはいけません",
+      },
+      {
+        kind: "example",
+        japanese: "宿題を忘れてはいけません。",
+        reading: "しゅくだいを わすれてはいけません。",
+        english: "You must not forget your homework.",
+        highlight: "てはいけません",
+      },
+    ];
+    return { learn, examples };
+  }
+
+  if (concept.id === "c-mashou") {
+    const learn: TeachBlock[] = [
+      { kind: "heading", text: "Invitations & Suggestions" },
+      {
+        kind: "paragraph",
+        text: "Two polite ways to invite someone: ましょう (\"let's ~\") and ませんか (\"won't you ~?\" / \"would you like to ~?\").",
+      },
+      { kind: "pattern", label: "Let's", value: "[verb stem] ましょう / ましょうか" },
+      { kind: "pattern", label: "Invitation", value: "[verb stem] ませんか" },
+      {
+        kind: "table",
+        headers: ["Form", "Example", "Tone"],
+        rows: [
+          ["ましょう", "一緒に食べましょう", "Let's eat together"],
+          ["ましょうか", "コーヒーを飲みましょうか", "Shall we drink coffee?"],
+          ["ませんか", "映画を見ませんか", "Would you like to watch a movie?"],
+        ],
+      },
+      {
+        kind: "callout",
+        variant: "remember",
+        title: "ません vs ませんか",
+        body: "行きません = I won't go (statement).\n行きませんか = Won't you go? / Shall we go? (invitation).",
+      },
+    ];
+    const examples: TeachBlock[] = [
+      { kind: "heading", text: "In conversation" },
+      {
+        kind: "example",
+        japanese: "一緒に行きましょう。",
+        reading: "いっしょに いきましょう。",
+        english: "Let's go together.",
+        highlight: "ましょう",
+      },
+      {
+        kind: "example",
+        japanese: "映画を見ませんか。",
+        reading: "えいがを みませんか。",
+        english: "Would you like to watch a movie?",
+        highlight: "見ませんか",
+      },
+      {
+        kind: "example",
+        japanese: "お茶を飲みませんか。",
+        reading: "おちゃを のみませんか。",
+        english: "Would you like some tea?",
+        highlight: "飲みませんか",
+      },
+    ];
+    return { learn, examples };
+  }
+
   if (concept.id === "c-word-order") {
     return {
       learn: [
@@ -971,6 +1279,39 @@ function buildNotes(concept: Concept): LessonNotes {
       right: "食べませんでした",
       note: "For “I did not eat,” ません is not enough — でした is what makes it past.",
     });
+  } else if (concept.id === "c-plain-forms") {
+    remember.push(
+      "ない = plain negative (食べない)",
+      "た = plain past (食べた) — same endings as て-form",
+      "なかった = plain past negative (食べなかった)"
+    );
+    mistakes.push({
+      wrong: "食べるない",
+      right: "食べない",
+      note: "る-verbs drop る before ない — not るない.",
+    });
+  } else if (concept.id === "c-permission") {
+    remember.push(
+      "てもいいです = may / allowed",
+      "てはいけません = must not",
+      "て-form + も / は — not ます"
+    );
+    mistakes.push({
+      wrong: "食べますてもいいです",
+      right: "食べてもいいです",
+      note: "Use て-form before もいい — not ます.",
+    });
+  } else if (concept.id === "c-mashou") {
+    remember.push(
+      "ましょう = let's ~",
+      "ませんか = won't you ~? / would you like to ~?",
+      "行きません = statement · 行きませんか = invitation"
+    );
+    mistakes.push({
+      wrong: "映画を見ません。",
+      right: "映画を見ませんか。",
+      note: "Without か, ません is just “I won't watch” — not an invitation.",
+    });
   } else if (g) {
     const pedagogy = getGrammarPedagogy(g);
     remember.push(g.pattern);
@@ -1025,6 +1366,51 @@ function lessonMeta(concept: Concept): {
         "Use ました for polite past",
         "Use ませんでした for past negative",
         "Talk about yesterday's activities",
+      ],
+      lessonType: "GRAMMAR",
+    };
+  }
+
+  if (concept.id === "c-plain-forms") {
+    return {
+      title: "Plain Negative & Past",
+      subtitle: "Grammar · Plain Forms",
+      description:
+        "Learn plain ない-form and た-form — the casual base for negative, past, and many grammar patterns.",
+      objectives: [
+        "Form plain negative with ない",
+        "Form plain past with た (same rules as て-form)",
+        "Recognize past negative なかった",
+      ],
+      lessonType: "GRAMMAR",
+    };
+  }
+
+  if (concept.id === "c-permission") {
+    return {
+      title: "Permission & Prohibition",
+      subtitle: "Grammar · て-form Uses",
+      description:
+        "Ask and give permission with てもいいです, and state rules with てはいけません.",
+      objectives: [
+        "Use てもいいです and てもいいですか",
+        "Use てはいけません for prohibitions",
+        "Tell permission and prohibition apart",
+      ],
+      lessonType: "GRAMMAR",
+    };
+  }
+
+  if (concept.id === "c-mashou") {
+    return {
+      title: "Invitations & Suggestions",
+      subtitle: "Grammar · Invitations",
+      description:
+        "Invite someone with ましょう and ませんか — two polite ways to suggest doing something together.",
+      objectives: [
+        "Use ましょう for let's ~",
+        "Use ませんか for would you like to ~",
+        "Distinguish invitations from negative statements",
       ],
       lessonType: "GRAMMAR",
     };
@@ -1131,6 +1517,23 @@ export function generateLesson(
   if (isGrammar && grammarTeach?.grammar && grammarTeach.pedagogy) {
     const { grammar, pedagogy } = grammarTeach;
 
+    let quizExercises = buildGrammarQuizExercises(grammar, pedagogy);
+    if (
+      concept.id === "c-plain-forms" ||
+      concept.id === "c-permission" ||
+      concept.id === "c-mashou"
+    ) {
+      const extras = conceptExercises(concept, "quiz").filter((ex) => ex.countsAsQuiz !== false);
+      const seen = new Set(quizExercises.map((ex) => `${ex.contentId}|${ex.correctAnswer}`));
+      for (const ex of extras) {
+        const key = `${ex.contentId}|${ex.correctAnswer}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        quizExercises.push({ ...ex, countsAsQuiz: true });
+        if (quizExercises.length >= 8) break;
+      }
+    }
+
     phases.push({
       id: uid("phase"),
       kind: "quiz",
@@ -1143,7 +1546,7 @@ export function generateLesson(
           text: "Start with recognition, then work toward using the pattern from memory. You'll get a brief explanation after every answer.",
         },
       ],
-      exercises: buildGrammarQuizExercises(grammar, pedagogy),
+      exercises: quizExercises,
     });
   } else {
     const staged = [

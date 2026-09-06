@@ -10,6 +10,7 @@ import type {
 } from "@/lib/types";
 import { ExerciseRenderer } from "@/components/exercises/ExerciseRenderer";
 import { TeachBlocks } from "@/components/lesson/TeachBlocks";
+import { ReferenceLessonLink } from "@/components/reference/ReferenceLessonLink";
 import { uid } from "@/lib/dates";
 
 interface Props {
@@ -340,6 +341,7 @@ export function LessonPlayer({ lesson, onComplete, onExit }: Props) {
 
       <div className="mb-2 text-center">
         <p className="text-sm text-[var(--ink-soft)]">{lesson.title}</p>
+        <ReferenceLessonLink conceptId={lesson.conceptId} />
       </div>
 
       {/* Phase track */}

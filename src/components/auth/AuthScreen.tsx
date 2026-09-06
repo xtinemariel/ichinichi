@@ -89,7 +89,9 @@ export function AuthScreen({
       <p className="mt-3 text-[var(--ink-soft)] leading-relaxed">
         {mode === "verify"
           ? "We sent a verification code to your email."
-          : "Create an account to save your Japanese learning progress."}
+          : mode === "login"
+            ? "Sign in to continue your Japanese learning progress on this device."
+            : "Create an account to save your Japanese learning progress."}
       </p>
 
       <form onSubmit={submit} className="mt-10 space-y-4">

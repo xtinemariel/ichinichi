@@ -125,22 +125,29 @@ export const CURRICULUM_UNITS: CurriculumUnit[] = [
     id: "unit-verbs-core",
     phase: "verbs",
     title: "Core Verbs",
-    description: "Essential N5 action verbs",
+    description: "Essential N5 verbs, dictionary form, and verb groups",
     order: 16,
   },
   {
     id: "unit-verbs-polite",
     phase: "verbs",
     title: "Polite Verb Forms",
-    description: "ます / ません / past forms",
+    description: "ます / ません / ました / ませんでした",
     order: 17,
+  },
+  {
+    id: "unit-verbs-plain",
+    phase: "verbs",
+    title: "Plain Verb Forms",
+    description: "ない / た / なかった — plain negative and past",
+    order: 18,
   },
   {
     id: "unit-verbs-te",
     phase: "verbs",
     title: "て-form & Uses",
-    description: "て-form, requests, and progressive",
-    order: 18,
+    description: "て-form, requests, permission, progressive",
+    order: 19,
   },
 
   // Phase 7 — Adjectives
@@ -149,7 +156,7 @@ export const CURRICULUM_UNITS: CurriculumUnit[] = [
     phase: "adjectives",
     title: "Adjectives",
     description: "い and な adjectives in all basic tenses",
-    order: 19,
+    order: 20,
   },
 
   // Phase 8 — Core Grammar
@@ -158,21 +165,21 @@ export const CURRICULUM_UNITS: CurriculumUnit[] = [
     phase: "grammar",
     title: "Existence & Feelings",
     description: "あります/います, likes, location",
-    order: 20,
+    order: 21,
   },
   {
     id: "unit-grammar-requests",
     phase: "grammar",
-    title: "Requests & Ability",
-    description: "ください, permission, prohibition, can",
-    order: 21,
+    title: "Desire, Invitations & Ability",
+    description: "たい, ましょう, ませんか, ことができる",
+    order: 22,
   },
   {
     id: "unit-grammar-connect",
     phase: "grammar",
     title: "Connecting Ideas",
     description: "Reasons, contrasts, comparisons, counters",
-    order: 22,
+    order: 23,
   },
 
   // Phase 9 — Kanji
@@ -181,21 +188,21 @@ export const CURRICULUM_UNITS: CurriculumUnit[] = [
     phase: "kanji",
     title: "Kanji Foundations",
     description: "Numbers, time, and people",
-    order: 23,
+    order: 24,
   },
   {
     id: "unit-kanji-world",
     phase: "kanji",
     title: "Kanji · World Around You",
     description: "Nature, places, and daily life",
-    order: 24,
+    order: 25,
   },
   {
     id: "unit-kanji-actions",
     phase: "kanji",
     title: "Kanji · Actions & Description",
     description: "Common verb and adjective kanji",
-    order: 25,
+    order: 26,
   },
 
   // Phase 10 — Integration
@@ -204,6 +211,6 @@ export const CURRICULUM_UNITS: CurriculumUnit[] = [
     phase: "integration",
     title: "N5 Integration",
     description: "Reading, listening, and production tasks",
-    order: 26,
+    order: 27,
   },
 ];
